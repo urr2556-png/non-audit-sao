@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06152b">
+  <title>เข้าสู่ระบบ | Non-Audit สุรินทร์</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #041022;
+      --text: #f4f8ff;
+      --muted: #adc2df;
+      --cyan: #27e8e4;
+      --blue: #569eff;
+      --purple: #b784ff;
+      --border: #315582;
+      --error: #ff9bb0;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Tahoma, "Leelawadee UI", Arial, sans-serif;
+      line-height: 1.65;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at 85% 10%, #243064, transparent 45%),
+        radial-gradient(ellipse at 10% 85%, #07384a, transparent 40%),
+        var(--bg);
+    }
+
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    input, button { font: inherit; }
+
+    :focus-visible {
+      outline: 3px solid #ffcf6c;
+      outline-offset: 4px;
+    }
+
+    [hidden] { display: none !important; }
+
+    .skip-link {
+      position: fixed;
+      top: -100px;
+      left: 12px;
+      z-index: 10;
+      padding: 10px 16px;
+      border-radius: 8px;
+      color: #03242a;
+      background: var(--cyan);
+    }
+
+    .skip-link:focus { top: 12px; }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 28px;
+      border-bottom: 1px solid var(--border);
+      background: #06152ce8;
+    }
+
+    .logo {
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      width: 64px;
+      height: 64px;
+      overflow: hidden;
+      border-radius: 50%;
+      border: 2px solid #ffc85b;
+      background: #731b22;
+      color: #ffc85b;
+      font-weight: bold;
+    }
+
+    .logo img { width: 100%; height: 100%; object-fit: cover; }
+
+    .brand { flex: 1; min-width: 0; }
+
+    .brand-name {
+      margin: 0;
+      font-size: clamp(17px, 2vw, 27px);
+      font-weight: bold;
+    }
+
+    .values { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+
+    .home-link {
+      padding: 9px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 40px;
+      max-width: 1050px;
+      margin: 55px auto;
+      padding: 0 20px;
+    }
+
+    .intro { padding: 15px 5px; }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--purple);
+      letter-spacing: 3px;
+      font-size: 12px;
+    }
+
+    h1 {
+      margin: 15px 0;
+      font-size: clamp(29px, 4vw, 44px);
+      line-height: 1.4;
+    }
+
+    .gradient {
+      background: linear-gradient(90deg, #bd8bff, #27e8e4);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .description { color: var(--muted); }
+
+    .features {
+      display: grid;
+      gap: 12px;
+      margin: 25px 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .features li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .feature-icon {
+      display: grid;
+      place-items: center;
+      width: 37px;
+      height: 37px;
+      border: 1px solid #425fac;
+      border-radius: 11px;
+      color: var(--cyan);
+      background: #112c4b;
+      flex-shrink: 0;
+      font-size: 18px;
+    }
+
+    .card {
+      padding: 30px;
+      border: 1px solid #586ac0;
+      border-radius: 20px;
+      background: linear-gradient(140deg, #102644, #07182e);
+      box-shadow: 0 18px 60px #00000030;
+    }
+
+    .login-icon {
+      display: grid;
+      place-items: center;
+      width: 54px;
+      height: 54px;
+      margin-bottom: 15px;
+      border: 1px solid #629bff;
+      border-radius: 15px;
+      background: #18366b;
+      color: var(--cyan);
+    }
+
+    .login-icon svg {
+      width: 30px;
+      height: 30px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    h2 { margin: 0 0 6px; font-size: 25px; }
+
+    .hint { margin: 6px 0; color: var(--muted); font-size: 12px; }
+
+    .connection {
+      margin: 17px 0;
+      padding: 10px 13px;
+      border: 1px solid #5b648d;
+      border-radius: 10px;
+      background: #1c2844;
+      color: #d2daef;
+      font-size: 12px;
+    }
+
+    .field { margin: 18px 0; }
+
+    label { display: block; margin-bottom: 7px; font-size: 14px; }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      min-height: 48px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      background: #04142a;
+    }
+
+    input::placeholder { color: #7f98bb; }
+    input:focus { border-color: var(--cyan); }
+
+    .password-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 12px 0 20px;
+    }
+
+    .password-option input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--cyan);
+    }
+
+    .password-option label { margin: 0; font-size: 13px; }
+
+    .submit {
+      width: 100%;
+      min-height: 49px;
+      border: 1px solid #63fff0;
+      border-radius: 12px;
+      color: #03242a;
+      background: linear-gradient(100deg, #27edda, #60dfff);
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 0 20px #27e8e41c;
+    }
+
+    .submit:hover { filter: brightness(1.08); }
+    .submit:disabled { cursor: wait; opacity: .6; }
+
+    .message {
+      margin-top: 15px;
+      padding: 12px;
+      border: 1px solid var(--error);
+      border-radius: 10px;
+      color: #ffd6df;
+      background: #361e31;
+      font-size: 13px;
+    }
+
+    .message.success {
+      color: #c4ffe2;
+      border-color: #49da96;
+      background: #0b332b;
+    }
+
+    .secondary-links {
+      display: grid;
+      gap: 10px;
+      margin-top: 20px;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .help-note {
+      margin: 20px 0 0;
+      padding-top: 15px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    footer {
+      padding: 15px 20px 25px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 760px) {
+      .header { padding: 14px; flex-wrap: wrap; gap: 10px; }
+      .logo { width: 49px; height: 49px; }
+      .brand { flex-basis: calc(100% - 60px); }
+      .brand-name { font-size: 17px; }
+      .values { font-size: 11px; }
+      .home-link { margin-left: 59px; }
+      main {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin: 25px auto;
+        padding: 0 14px;
+      }
+      .intro { padding: 5px; }
+      h1 { font-size: 30px; }
+      .features { margin: 16px 0; gap: 9px; font-size: 13px; }
+      .card { padding: 24px; }
+    }
+
+    @media (max-width: 430px) {
+      .card { padding: 19px; }
+      .brand-name { font-size: 16px; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#loginForm">ข้ามไปแบบฟอร์มเข้าสู่ระบบ</a>
+
+  <header class="header">
+    <div class="logo">
+      <img id="logoImage" src="assets/logo.jpeg"
+           alt="ตราสำนักงานการตรวจเงินแผ่นดิน">
+      <span id="logoText" hidden>สตง.</span>
+    </div>
+
+    <div class="brand">
+      <p class="brand-name">สำนักตรวจเงินแผ่นดินจังหวัดสุรินทร์</p>
+      <p class="values">สัตย์ซื่อ มืออาชีพ อิสระและเป็นกลาง</p>
+    </div>
+
+    <a class="home-link" href="index.html">← กลับหน้าแรก</a>
+  </header>
+
+  <main>
+    <section class="intro" aria-labelledby="pageTitle">
+      <p class="eyebrow">NON AUDIT · LOGIN</p>
+
+      <h1 id="pageTitle">
+        ยินดีต้อนรับ<br>
+        <span class="gradient">เข้าสู่พื้นที่ทำงาน</span>
+      </h1>
+
+      <p class="description">
+        เข้าสู่ระบบด้วยบัญชีที่ลงทะเบียน
+        เพื่อจัดทำรายงานและติดตามผลตามสิทธิ์ที่ได้รับ
+      </p>
+
+      <ul class="features">
+        <li>
+          <span class="feature-icon" aria-hidden="true">＋</span>
+          สร้างและจัดเก็บรายงาน
+        </li>
+        <li>
+          <span class="feature-icon" aria-hidden="true">⌕</span>
+          ค้นหาข้อมูลประกอบการวิเคราะห์
+        </li>
+        <li>
+          <span class="feature-icon" aria-hidden="true">✓</span>
+          ติดตามผลการดำเนินงาน
+        </li>
+      </ul>
+
+      <p class="hint">
+        ประชาชนอ่านผลงานที่เปิดเผยได้โดยไม่ต้องเข้าสู่ระบบ
+        <a href="public-results.html">ดูผลงานสาธารณะ →</a>
+      </p>
+    </section>
+
+    <section class="card" aria-labelledby="formTitle">
+      <div class="login-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M14 3h6v18h-6M3 12h12m-5-5 5 5-5 5"></path>
+        </svg>
+      </div>
+
+      <h2 id="formTitle">เข้าสู่ระบบ</h2>
+      <p class="hint">กรอกอีเมลและรหัสผ่านของบัญชีผู้ใช้งาน</p>
+
+      <div class="connection" id="connectionStatus" role="status">
+        ยังไม่ได้เชื่อมบริการเข้าสู่ระบบ — ข้อมูลจะยังไม่ถูกส่ง
+      </div>
+
+      <form id="loginForm">
+        <div class="field">
+          <label for="email">อีเมล</label>
+          <input id="email" name="email" type="email"
+                 autocomplete="username" required maxlength="254"
+                 placeholder="name@example.com">
+        </div>
+
+        <div class="field">
+          <label for="password">รหัสผ่าน</label>
+          <input id="password" name="password" type="password"
+                 autocomplete="current-password" required maxlength="128">
+        </div>
+
+        <div class="password-option">
+          <input id="showPassword" type="checkbox">
+          <label for="showPassword">แสดงรหัสผ่าน</label>
+        </div>
+
+        <button class="submit" id="submitButton" type="submit">
+          เข้าสู่ระบบ →
+        </button>
+
+        <div class="message" id="message"
+             role="status" aria-live="polite" tabindex="-1" hidden></div>
+
+        <div class="secondary-links">
+          <span>ยังไม่มีบัญชี? <a href="register.html">ลงทะเบียน</a></span>
+          <a href="index.html">กลับหน้าแรก</a>
+        </div>
+
+        <p class="help-note">
+          หากลืมรหัสผ่านหรือบัญชียังไม่ได้รับอนุมัติ
+          กรุณาติดต่อผู้ดูแลระบบของหน่วยงาน
+        </p>
+      </form>
+
+      <noscript>
+        <p>กรุณาเปิด JavaScript เพื่อใช้แบบฟอร์มเข้าสู่ระบบ</p>
+      </noscript>
+    </section>
+  </main>
+
+  <footer>
+    ตรวจสอบเพื่ออนาคตประเทศชาติและประชาชน · NON AUDIT WORKSPACE
+  </footer>
+
+  <script>
+    "use strict";
+
+    /*
+      การเชื่อมระบบหลังบ้าน
+
+      ใส่ URL ของ API เข้าสู่ระบบที่ติดตั้งแล้ว
+      ต้องใช้ระบบบัญชีเดียวกับ register.html
+
+      ตัวอย่างรูปแบบ:
+      https://your-backend.example/api/login
+
+      API รับ POST:
+      {
+        "email": "...",
+        "password": "..."
+      }
+
+      ผลสำเร็จ:
+      {
+        "success": true,
+        "authenticated": true,
+        "accountStatus": "active"
+      }
+
+      ฝั่ง server ต้องสร้าง session จริงผ่าน HttpOnly cookie
+      และตรวจสอบ session/สิทธิ์ทุกครั้งที่เรียก API ของงานภายใน
+
+      กรณีรออนุมัติหรือยังไม่ยืนยันอีเมล:
+      ใช้ HTTP 403 พร้อม code:
+      "ACCOUNT_PENDING" หรือ "EMAIL_UNVERIFIED"
+
+      กรณีข้อมูลเข้าสู่ระบบไม่ถูกต้อง: HTTP 401
+      กรณีส่งคำขอถี่เกินไป: HTTP 429
+
+      หาก API อยู่คนละ origin:
+      - อนุญาต CORS เฉพาะ origin ของเว็บไซต์จริง
+      - ตั้ง Access-Control-Allow-Credentials: true
+      - ห้ามใช้ Access-Control-Allow-Origin: *
+      - ตั้งค่า cookie ให้เหมาะสม และป้องกัน CSRF
+      - browser บางเครื่องอาจปิดกั้น cookie ข้ามเว็บไซต์
+
+      ห้ามใส่กุญแจลับในไฟล์นี้
+      ห้ามใช้ localStorage เป็นหลักฐานว่าผู้ใช้เข้าสู่ระบบแล้ว
+    */
+    const LOGIN_API_URL = "";
+
+    // ใช้หน้าแรกเป็นปลายทางที่มีอยู่แล้ว
+    const SUCCESS_PAGE = "index.html";
+
+    const form = document.getElementById("loginForm");
+    const email = document.getElementById("email");
+    const password = document.getElementById("password");
+    const submitButton = document.getElementById("submitButton");
+    const messageBox = document.getElementById("message");
+    const connectionStatus = document.getElementById("connectionStatus");
+
+    let submitting = false;
+    let apiUrl = null;
+
+    function showMessage(text, success = false) {
+      messageBox.textContent = text;
+      messageBox.classList.toggle("success", success);
+      messageBox.hidden = false;
+      messageBox.focus();
+    }
+
+    function readApiUrl() {
+      if (!LOGIN_API_URL.trim()) return null;
+
+      const url = new URL(LOGIN_API_URL);
+
+      if (url.protocol !== "https:" || url.username || url.password) {
+        throw new Error("INVALID_API_URL");
+      }
+
+      return url.href;
+    }
+
+    try {
+      apiUrl = readApiUrl();
+
+      if (apiUrl) {
+        connectionStatus.textContent =
+          "กำหนดช่องทางเข้าสู่ระบบแล้ว — ระบบจะตรวจสอบบัญชีเมื่อส่งคำขอ";
+      }
+    } catch {
+      connectionStatus.textContent =
+        "การตั้งค่าบริการเข้าสู่ระบบไม่ถูกต้อง กรุณาแจ้งผู้ดูแล";
+    }
+
+    document.getElementById("showPassword").addEventListener("change", event => {
+      password.type = event.target.checked ? "text" : "password";
+    });
+
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+
+      if (submitting) return;
+
+      email.value = email.value.trim();
+      if (!form.reportValidity()) return;
+
+      if (!apiUrl) {
+        showMessage(
+          "ยังไม่ได้เชื่อมบริการเข้าสู่ระบบ จึงยังไม่สามารถตรวจสอบบัญชีได้ " +
+          "ข้อมูลยังไม่ได้ถูกส่ง กรุณาแจ้งผู้ดูแลระบบ"
+        );
+        return;
+      }
+
+      submitting = true;
+      submitButton.disabled = true;
+      submitButton.textContent = "กำลังตรวจสอบบัญชี...";
+      messageBox.hidden = true;
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000);
+      let signedIn = false;
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          credentials: "include",
+          cache: "no-store",
+          referrerPolicy: "no-referrer",
+          signal: controller.signal,
+          body: JSON.stringify({
+            email: email.value,
+            password: password.value
+          })
+        });
+
+        // ล้างรหัสผ่านในช่องหลังส่งคำขอ
+        password.value = "";
+
+        let result = null;
+        try {
+          result = await response.json();
+        } catch {
+          // HTTP error บางกรณีอาจไม่ส่ง JSON
+        }
+
+        if (response.status === 401) {
+          showMessage("อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่");
+          return;
+        }
+
+        if (response.status === 429) {
+          showMessage("มีการเข้าสู่ระบบถี่เกินไป กรุณารอสักครู่แล้วลองใหม่");
+          return;
+        }
+
+        if (response.status === 403) {
+          if (result && result.code === "ACCOUNT_PENDING") {
+            showMessage(
+              "บัญชีอยู่ระหว่างรอผู้ดูแลตรวจสอบและอนุมัติสิทธิ์"
+            );
+          } else if (result && result.code === "EMAIL_UNVERIFIED") {
+            showMessage(
+              "กรุณายืนยันอีเมลตามข้อความที่ได้รับก่อนเข้าสู่ระบบ"
+            );
+          } else {
+            showMessage(
+              "บัญชียังไม่ได้รับสิทธิ์เข้าใช้งาน กรุณาติดต่อผู้ดูแล"
+            );
+          }
+          return;
+        }
+
+        if (!response.ok) {
+          showMessage("บริการเข้าสู่ระบบขัดข้อง กรุณาลองใหม่ภายหลัง");
+          return;
+        }
+
+        if (
+          !result ||
+          result.success !== true ||
+          result.authenticated !== true ||
+          result.accountStatus !== "active"
+        ) {
+          showMessage(
+            "ยังยืนยันการเข้าสู่ระบบไม่ได้ กรุณาติดต่อผู้ดูแล"
+          );
+          return;
+        }
+
+        signedIn = true;
+        showMessage("เข้าสู่ระบบสำเร็จ กำลังกลับหน้าแรก...", true);
+        window.location.assign(SUCCESS_PAGE);
+
+      } catch (error) {
+        password.value = "";
+
+        if (error.name === "AbortError") {
+          showMessage(
+            "การเชื่อมต่อใช้เวลานานเกินไป กรุณาลองเข้าสู่ระบบใหม่"
+          );
+        } else {
+          showMessage(
+            "เชื่อมต่อบริการเข้าสู่ระบบไม่ได้ กรุณาตรวจสอบการเชื่อมต่อ " +
+            "หรือติดต่อผู้ดูแลระบบ"
+          );
+        }
+      } finally {
+        clearTimeout(timeout);
+
+        if (!signedIn) {
+          submitting = false;
+          submitButton.disabled = false;
+          submitButton.textContent = "เข้าสู่ระบบ →";
+        }
+      }
+    });
+
+    // คืนสถานะปุ่มเมื่อกลับมาจากประวัติ browser
+    window.addEventListener("pageshow", () => {
+      submitting = false;
+      submitButton.disabled = false;
+      submitButton.textContent = "เข้าสู่ระบบ →";
+      password.value = "";
+    });
+
+    const logoImage = document.getElementById("logoImage");
+
+    function showLogoFallback() {
+      logoImage.hidden = true;
+      document.getElementById("logoText").hidden = false;
+    }
+
+    logoImage.addEventListener("error", showLogoFallback);
+
+    if (logoImage.complete && logoImage.naturalWidth === 0) {
+      showLogoFallback();
+    }
+  </script>
+</body>
+</html>
