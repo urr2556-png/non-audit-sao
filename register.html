@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06152b">
+  <title>ลงทะเบียน | Non-Audit สุรินทร์</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #041022;
+      --surface: #0a1e39;
+      --text: #f4f8ff;
+      --muted: #adc2df;
+      --cyan: #27e8e4;
+      --blue: #569eff;
+      --purple: #b784ff;
+      --border: #315582;
+      --error: #ff9bb0;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Tahoma, "Leelawadee UI", Arial, sans-serif;
+      line-height: 1.65;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at 90% 10%, #243064, transparent 45%),
+        var(--bg);
+    }
+
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    button, input { font: inherit; }
+
+    :focus-visible {
+      outline: 3px solid #ffcf6c;
+      outline-offset: 4px;
+    }
+
+    [hidden] { display: none !important; }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 28px;
+      border-bottom: 1px solid var(--border);
+      background: #06152ce8;
+    }
+
+    .logo {
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      width: 64px;
+      height: 64px;
+      overflow: hidden;
+      border-radius: 50%;
+      border: 2px solid #ffc85b;
+      background: #731b22;
+      color: #ffc85b;
+      font-weight: bold;
+    }
+
+    .logo img { width: 100%; height: 100%; object-fit: cover; }
+
+    .brand { flex: 1; min-width: 0; }
+
+    .brand-name {
+      margin: 0;
+      font-size: clamp(17px, 2vw, 27px);
+      font-weight: bold;
+    }
+
+    .values { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+
+    .home-link {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 14px;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 36px auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: .85fr 1.15fr;
+      gap: 25px;
+      align-items: start;
+    }
+
+    .intro { padding: 24px 10px; }
+
+    .eyebrow {
+      color: var(--purple);
+      letter-spacing: 3px;
+      font-size: 12px;
+    }
+
+    h1 {
+      margin: 12px 0;
+      font-size: clamp(28px, 4vw, 43px);
+      line-height: 1.35;
+    }
+
+    .gradient {
+      background: linear-gradient(90deg, #bd8bff, #27e8e4);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .description { color: var(--muted); }
+
+    .steps {
+      margin: 25px 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 16px;
+    }
+
+    .steps li { display: flex; gap: 12px; align-items: center; }
+
+    .step-number {
+      width: 34px;
+      height: 34px;
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      border: 1px solid #586bd1;
+      background: #182c54;
+      color: var(--cyan);
+    }
+
+    .card {
+      padding: 28px;
+      border-radius: 20px;
+      border: 1px solid #586ac0;
+      background: linear-gradient(140deg, #102644, #07182e);
+      box-shadow: 0 18px 60px #00000030;
+    }
+
+    h2 { margin: 0 0 6px; font-size: 23px; }
+
+    .hint { color: var(--muted); font-size: 12px; margin: 6px 0; }
+
+    .connection {
+      padding: 10px 13px;
+      margin: 16px 0;
+      border: 1px solid #5b648d;
+      border-radius: 10px;
+      color: #d2daef;
+      background: #1c2844;
+      font-size: 12px;
+    }
+
+    .fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .field { min-width: 0; }
+    .full { grid-column: 1 / -1; }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .required { color: #ffafc4; }
+
+    input:not([type="checkbox"]) {
+      width: 100%;
+      min-height: 46px;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      background: #04142a;
+    }
+
+    input::placeholder { color: #7f98bb; }
+
+    input:focus { border-color: var(--cyan); }
+
+    input[aria-invalid="true"] { border-color: var(--error); }
+
+    .password-options {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin: 14px 0;
+      font-size: 13px;
+    }
+
+    .password-options label { margin: 0; font-size: inherit; }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--cyan);
+      flex-shrink: 0;
+    }
+
+    .notice {
+      padding: 14px;
+      border-radius: 12px;
+      background: #0a2a3e;
+      border: 1px solid #267786;
+      font-size: 13px;
+    }
+
+    .consent {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin: 18px 0;
+    }
+
+    .consent input { margin-top: 4px; }
+    .consent label { margin: 0; font-size: 13px; }
+
+    .submit {
+      width: 100%;
+      min-height: 49px;
+      border: 1px solid #63fff0;
+      border-radius: 12px;
+      color: #03242a;
+      background: linear-gradient(100deg, #27edda, #60dfff);
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 0 20px #27e8e41c;
+    }
+
+    .submit:hover { filter: brightness(1.08); }
+    .submit:disabled { cursor: wait; opacity: .6; }
+
+    .message {
+      margin-top: 14px;
+      padding: 12px;
+      border: 1px solid var(--error);
+      border-radius: 10px;
+      color: #ffd6df;
+      background: #361e31;
+      font-size: 13px;
+    }
+
+    .message.success {
+      color: #c4ffe2;
+      background: #0b332b;
+      border-color: #49da96;
+    }
+
+    .login-link { text-align: center; margin: 18px 0 0; font-size: 13px; }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 15px 20px 25px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 760px) {
+      .header { padding: 14px; flex-wrap: wrap; gap: 10px; }
+      .logo { width: 49px; height: 49px; }
+      .brand { flex-basis: calc(100% - 60px); }
+      .brand-name { font-size: 17px; }
+      .values { font-size: 11px; }
+      .home-link { margin-left: 59px; }
+      main { grid-template-columns: 1fr; margin: 20px auto; gap: 12px; padding: 0 14px; }
+      .intro { padding: 5px; }
+      .steps { gap: 10px; margin: 18px 0; font-size: 13px; }
+      .card { padding: 22px; }
+    }
+
+    @media (max-width: 430px) {
+      .fields { grid-template-columns: 1fr; }
+      .card { padding: 18px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <div class="logo">
+      <img id="logoImage" src="assets/logo.jpeg"
+           alt="ตราสำนักงานการตรวจเงินแผ่นดิน">
+      <span id="logoText" hidden>สตง.</span>
+    </div>
+
+    <div class="brand">
+      <p class="brand-name">สำนักตรวจเงินแผ่นดินจังหวัดสุรินทร์</p>
+      <p class="values">สัตย์ซื่อ มืออาชีพ อิสระและเป็นกลาง</p>
+    </div>
+
+    <a class="home-link" href="index.html">← กลับหน้าแรก</a>
+  </header>
+
+  <main>
+    <section class="intro" aria-labelledby="pageTitle">
+      <p class="eyebrow">NON AUDIT · REGISTER</p>
+      <h1 id="pageTitle">
+        ลงทะเบียน<br>
+        <span class="gradient">เริ่มต้นทำงานร่วมกัน</span>
+      </h1>
+
+      <p class="description">
+        สมัครใช้งานระบบจัดทำรายงาน Non-Audit
+        เพื่อรวบรวมข้อมูล สร้างรายงาน และติดตามผลการดำเนินงาน
+      </p>
+
+      <ol class="steps">
+        <li><span class="step-number">1</span>กรอกข้อมูลและส่งคำขอสมัคร</li>
+        <li><span class="step-number">2</span>ยืนยันอีเมลตามข้อความที่ระบบแจ้ง</li>
+        <li><span class="step-number">3</span>รอผู้ดูแลตรวจสอบและอนุมัติสิทธิ์</li>
+        <li><span class="step-number">4</span>เข้าสู่ระบบเพื่อเริ่มใช้งาน</li>
+      </ol>
+
+      <p class="hint">
+        ต้องการอ่านผลงานที่เผยแพร่แล้ว?
+        <a href="public-results.html">ไปที่ผลงานสาธารณะ →</a>
+      </p>
+    </section>
+
+    <section class="card" aria-labelledby="formTitle">
+      <h2 id="formTitle">ข้อมูลผู้สมัคร</h2>
+      <p class="hint">ช่องที่มีเครื่องหมาย * จำเป็นต้องกรอก</p>
+
+      <div class="connection" id="connectionStatus" role="status">
+        ยังไม่ได้เชื่อมบริการลงทะเบียน — ข้อมูลจะยังไม่ถูกส่งหรือบันทึก
+      </div>
+
+      <form id="registerForm">
+        <div class="fields">
+          <div class="field full">
+            <label for="fullName">ชื่อ–นามสกุล <span class="required">*</span></label>
+            <input id="fullName" name="fullName" type="text"
+                   autocomplete="name" required minlength="2" maxlength="120"
+                   placeholder="ระบุชื่อและนามสกุล">
+          </div>
+
+          <div class="field full">
+            <label for="email">อีเมล <span class="required">*</span></label>
+            <input id="email" name="email" type="email"
+                   autocomplete="email" required maxlength="254"
+                   placeholder="name@example.com">
+          </div>
+
+          <div class="field full">
+            <label for="organization">หน่วยงาน <span class="required">*</span></label>
+            <input id="organization" name="organization" type="text"
+                   autocomplete="organization" required minlength="2"
+                   maxlength="200" placeholder="ชื่อหน่วยงานที่สังกัด">
+          </div>
+
+          <div class="field full">
+            <label for="position">ตำแหน่ง</label>
+            <input id="position" name="position" type="text"
+                   autocomplete="organization-title" maxlength="120"
+                   placeholder="ระบุตำแหน่ง (ถ้ามี)">
+          </div>
+
+          <div class="field">
+            <label for="password">รหัสผ่าน <span class="required">*</span></label>
+            <input id="password" name="password" type="password"
+                   autocomplete="new-password" required
+                   minlength="12" maxlength="128"
+                   aria-describedby="passwordHint">
+          </div>
+
+          <div class="field">
+            <label for="confirmPassword">
+              ยืนยันรหัสผ่าน <span class="required">*</span>
+            </label>
+            <input id="confirmPassword" name="confirmPassword" type="password"
+                   autocomplete="new-password" required
+                   minlength="12" maxlength="128">
+          </div>
+        </div>
+
+        <p class="hint" id="passwordHint">
+          ใช้รหัสผ่านอย่างน้อย 12 ตัวอักษร สามารถใช้วลีที่จำง่ายได้
+        </p>
+
+        <div class="password-options">
+          <input id="showPassword" type="checkbox">
+          <label for="showPassword">แสดงรหัสผ่าน</label>
+        </div>
+
+        <div class="notice" id="privacyNotice">
+          ข้อมูลในแบบฟอร์มใช้สำหรับสมัครและตรวจสอบสิทธิ์เข้าใช้งาน
+          ผู้ดูแลต้องอนุมัติก่อนเข้าถึงงานภายใน
+          ผู้สมัครไม่สามารถกำหนดสิทธิ์ Admin ให้ตนเองได้
+          <p class="hint" style="margin-bottom:0">
+            ก่อนเปิดรับสมัครจริง หน่วยงานต้องระบุผู้รับผิดชอบ
+            ช่องทางติดต่อ ระยะเวลาเก็บข้อมูล และประกาศความเป็นส่วนตัว
+          </p>
+        </div>
+
+        <div class="consent">
+          <input id="acknowledge" type="checkbox" required
+                 aria-describedby="privacyNotice">
+          <label for="acknowledge">
+            ฉันรับทราบขั้นตอนการสมัครและการตรวจสอบสิทธิ์
+            และยืนยันว่าข้อมูลที่กรอกเป็นข้อมูลของฉัน
+          </label>
+        </div>
+
+        <button class="submit" id="submitButton" type="submit">
+          ส่งคำขอลงทะเบียน →
+        </button>
+
+        <div class="message" id="message" role="status"
+             aria-live="polite" tabindex="-1" hidden></div>
+
+        <p class="login-link">
+          มีบัญชีอยู่แล้ว? <a href="login.html">เข้าสู่ระบบ</a>
+        </p>
+      </form>
+
+      <noscript>
+        <p>กรุณาเปิด JavaScript เพื่อใช้แบบฟอร์มลงทะเบียน</p>
+      </noscript>
+    </section>
+  </main>
+
+  <footer>
+    ตรวจสอบเพื่ออนาคตประเทศชาติและประชาชน · NON AUDIT WORKSPACE
+  </footer>
+
+  <script>
+    "use strict";
+
+    /*
+      ใส่ URL ของ API ลงทะเบียนที่ติดตั้งแล้ว
+      ตัวอย่างรูปแบบ: https://your-backend.example/api/register
+
+      ห้ามใส่กุญแจลับหรือ Service Role Key ในไฟล์นี้
+      API ต้องรองรับ POST และ CORS สำหรับเว็บไซต์นี้
+
+      ฝั่ง server ต้อง:
+      1. ตรวจสอบข้อมูลซ้ำอีกครั้ง
+      2. ใช้บริการ Auth จัดการรหัสผ่านอย่างปลอดภัย
+      3. กำหนดบัญชีใหม่เป็น pending เท่านั้น
+      4. ให้ Admin เป็นผู้อนุมัติสิทธิ์
+      5. ป้องกันการสมัครถี่และไม่บันทึกรหัสผ่านใน log
+      6. ส่งอีเมลยืนยันตามนโยบายของระบบ
+
+      รูปแบบผลสำเร็จที่หน้านี้รองรับ:
+      {
+        "success": true,
+        "status": "pending",
+        "emailVerificationRequired": true
+      }
+    */
+    const REGISTER_API_URL = "";
+
+    const form = document.getElementById("registerForm");
+    const password = document.getElementById("password");
+    const confirmPassword = document.getElementById("confirmPassword");
+    const submitButton = document.getElementById("submitButton");
+    const messageBox = document.getElementById("message");
+    const connectionStatus = document.getElementById("connectionStatus");
+
+    function showMessage(text, success = false) {
+      messageBox.textContent = text;
+      messageBox.classList.toggle("success", success);
+      messageBox.hidden = false;
+      messageBox.focus();
+    }
+
+    function getApiUrl() {
+      if (!REGISTER_API_URL.trim()) return null;
+
+      const url = new URL(REGISTER_API_URL);
+      if (url.protocol !== "https:") {
+        throw new Error("API ต้องใช้ HTTPS");
+      }
+      if (url.username || url.password) {
+        throw new Error("URL ต้องไม่มีข้อมูลบัญชี");
+      }
+      return url.href;
+    }
+
+    let apiUrl = null;
+
+    try {
+      apiUrl = getApiUrl();
+      if (apiUrl) {
+        connectionStatus.textContent =
+          "กำหนดช่องทางส่งคำขอแล้ว — ระบบจะตรวจสอบการเชื่อมต่อเมื่อส่งคำขอ";
+      }
+    } catch {
+      connectionStatus.textContent =
+        "การตั้งค่าบริการลงทะเบียนไม่ถูกต้อง กรุณาแจ้งผู้ดูแล";
+    }
+
+    document.getElementById("showPassword").addEventListener("change", event => {
+      const type = event.target.checked ? "text" : "password";
+      password.type = type;
+      confirmPassword.type = type;
+    });
+
+    function validatePasswordMatch() {
+      const mismatch =
+        confirmPassword.value.length > 0 &&
+        password.value !== confirmPassword.value;
+
+      confirmPassword.setCustomValidity(
+        mismatch ? "รหัสผ่านทั้งสองช่องต้องตรงกัน" : ""
+      );
+
+      confirmPassword.setAttribute("aria-invalid", String(mismatch));
+    }
+
+    password.addEventListener("input", validatePasswordMatch);
+    confirmPassword.addEventListener("input", validatePasswordMatch);
+
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+
+      // ตัดช่องว่างเฉพาะข้อมูลข้อความ ไม่แก้ไขรหัสผ่าน
+      ["fullName", "email", "organization", "position"].forEach(id => {
+        const input = document.getElementById(id);
+        input.value = input.value.trim();
+      });
+
+      validatePasswordMatch();
+      if (!form.reportValidity()) return;
+
+      if (!apiUrl) {
+        showMessage(
+          "ข้อมูลผ่านการตรวจสอบในแบบฟอร์มแล้ว แต่ยังไม่ได้เชื่อมบริการลงทะเบียน " +
+          "จึงยังไม่มีการส่งข้อมูลหรือสร้างบัญชี กรุณาแจ้งผู้ดูแลระบบ"
+        );
+        return;
+      }
+
+      submitButton.disabled = true;
+      submitButton.textContent = "กำลังส่งคำขอ...";
+      messageBox.hidden = true;
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000);
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          credentials: "omit",
+          cache: "no-store",
+          referrerPolicy: "no-referrer",
+          signal: controller.signal,
+          body: JSON.stringify({
+            fullName: document.getElementById("fullName").value,
+            email: document.getElementById("email").value,
+            organization: document.getElementById("organization").value,
+            position: document.getElementById("position").value,
+            password: password.value,
+            acknowledged: document.getElementById("acknowledge").checked
+          })
+        });
+
+        let result = null;
+        try {
+          result = await response.json();
+        } catch {
+          throw new Error("INVALID_RESPONSE");
+        }
+
+        if (!response.ok) {
+          if (response.status === 429) {
+            showMessage("มีการส่งคำขอถี่เกินไป กรุณารอสักครู่แล้วลองใหม่");
+          } else {
+            showMessage(
+              "ระบบไม่สามารถรับคำขอได้ กรุณาตรวจสอบข้อมูลหรือติดต่อผู้ดูแล"
+            );
+          }
+          return;
+        }
+
+        if (!result || result.success !== true || result.status !== "pending") {
+          throw new Error("INVALID_RESPONSE");
+        }
+
+        form.reset();
+        password.type = "password";
+        confirmPassword.type = "password";
+        confirmPassword.setCustomValidity("");
+        confirmPassword.removeAttribute("aria-invalid");
+
+        const verificationMessage =
+          result.emailVerificationRequired === true
+            ? " กรุณาตรวจสอบอีเมลเพื่อยืนยันบัญชี"
+            : "";
+
+        showMessage(
+          "ระบบรับคำขอลงทะเบียนแล้ว" + verificationMessage +
+          " บัญชียังรอการตรวจสอบและอนุมัติจากผู้ดูแล",
+          true
+        );
+      } catch (error) {
+        if (error.name === "AbortError") {
+          showMessage(
+            "การเชื่อมต่อใช้เวลานานเกินไป ยังยืนยันผลการสมัครไม่ได้ " +
+            "กรุณาตรวจสอบอีเมลหรือติดต่อผู้ดูแลก่อนส่งคำขอซ้ำ"
+          );
+        } else {
+          showMessage(
+            "ยังยืนยันผลการสมัครไม่ได้ เนื่องจากการเชื่อมต่อหรือการตอบกลับผิดพลาด " +
+            "กรุณาตรวจสอบอีเมลหรือติดต่อผู้ดูแล"
+          );
+        }
+      } finally {
+        clearTimeout(timeout);
+        submitButton.disabled = false;
+        submitButton.textContent = "ส่งคำขอลงทะเบียน →";
+      }
+    });
+
+    const logoImage = document.getElementById("logoImage");
+
+    function showLogoFallback() {
+      logoImage.hidden = true;
+      document.getElementById("logoText").hidden = false;
+    }
+
+    logoImage.addEventListener("error", showLogoFallback);
+    if (logoImage.complete && logoImage.naturalWidth === 0) {
+      showLogoFallback();
+    }
+  </script>
+</body>
+</html>
