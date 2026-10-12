@@ -1,0 +1,23 @@
+# Paid web service + persistent disk. Review Render's displayed cost before deploying.
+services:
+  - type: web
+    name: non-audit-sao
+    runtime: docker
+    region: singapore
+    plan: 0.5c-512mb
+    numInstances: 1
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    autoDeployTrigger: "off"
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /data
+      - key: TRUST_PROXY
+        value: "1"
+    disk:
+      name: non-audit-data
+      mountPath: /data
+      sizeGB: 1
