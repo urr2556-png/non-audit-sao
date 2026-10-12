@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06152b">
+  <meta name="description"
+        content="ระบบจัดทำและบริหารจัดการรายงาน Non-Audit สำนักตรวจเงินแผ่นดินจังหวัดสุรินทร์">
+  <title>Non-Audit | สำนักตรวจเงินแผ่นดินจังหวัดสุรินทร์</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --background: #041022;
+      --surface: #091d38;
+      --text: #f4f8ff;
+      --muted: #acc0df;
+      --cyan: #24e6eb;
+      --blue: #5099ff;
+      --green: #45e990;
+      --purple: #bd7bff;
+      --pink: #ff69a9;
+      --gold: #ffc85b;
+      --red: #ff718d;
+      --border: #284d83;
+      --sidebar: 240px;
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Tahoma, "Leelawadee UI", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at 85% 0%, #172554 0, transparent 45%),
+        var(--background);
+      line-height: 1.6;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    button { font: inherit; }
+
+    a, button { -webkit-tap-highlight-color: transparent; }
+
+    a:focus-visible, button:focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 4px;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: -100px;
+      left: 12px;
+      z-index: 100;
+      padding: 10px 16px;
+      background: var(--cyan);
+      color: #031326;
+      border-radius: 8px;
+    }
+
+    .skip-link:focus { top: 12px; }
+
+    .icon {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 16px 28px;
+      min-height: 112px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(110deg, #081b36, #040e20);
+    }
+
+    .logo {
+      width: 82px;
+      height: 82px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      border: 2px solid var(--gold);
+      overflow: hidden;
+      background: #731b22;
+      display: grid;
+      place-items: center;
+      color: var(--gold);
+      font-weight: bold;
+      font-size: 22px;
+    }
+
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .brand { min-width: 0; flex: 1; }
+
+    .office-name {
+      margin: 0;
+      font-size: clamp(19px, 2.45vw, 36px);
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    .values {
+      margin: 5px 0 0;
+      color: #aacdf5;
+      font-size: clamp(13px, 1.25vw, 18px);
+    }
+
+    .clock {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-left: 1px solid #7566ce;
+      padding-left: 20px;
+      flex-shrink: 0;
+    }
+
+    .clock .icon { color: var(--blue); width: 34px; height: 34px; }
+
+    #time {
+      display: block;
+      font-size: 21px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.3;
+    }
+
+    #date { color: var(--muted); font-size: 12px; }
+
+    .menu-button {
+      display: none;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px;
+      color: var(--cyan);
+      background: var(--surface);
+      cursor: pointer;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: var(--sidebar) minmax(0, 1fr);
+      max-width: 1800px;
+      margin: auto;
+    }
+
+    .sidebar {
+      padding: 20px 12px;
+      border-right: 1px solid #17365d;
+      background: linear-gradient(180deg, #071b35, #041226);
+    }
+
+    .workspace {
+      margin: 0 12px 20px;
+      font-size: 27px;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .workspace span { color: var(--cyan); }
+
+    .workspace small {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 6px;
+    }
+
+    .navigation { display: grid; gap: 7px; }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-height: 48px;
+      padding: 10px 13px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      font-size: 14px;
+      transition: background .2s, border-color .2s;
+    }
+
+    .nav-link .icon { color: var(--accent); }
+
+    .nav-link:hover {
+      background: #102b50;
+      border-color: #365993;
+    }
+
+    .nav-link[aria-current="page"] {
+      color: var(--cyan);
+      background: linear-gradient(100deg, #12476b, #102d62);
+      border-color: #3489e5;
+      box-shadow: inset 3px 0 var(--cyan);
+      font-weight: bold;
+    }
+
+    main {
+      min-width: 0;
+      padding: 18px;
+      display: grid;
+      align-content: start;
+      gap: 15px;
+    }
+
+    .hero {
+      position: relative;
+      isolation: isolate;
+      min-height: 286px;
+      overflow: hidden;
+      border: 1px solid #6271ee;
+      border-radius: var(--radius);
+      background: linear-gradient(130deg, #102760, #061a32);
+    }
+
+    .hero-image {
+      position: absolute;
+      inset: 0 0 0 auto;
+      width: 65%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 42%;
+      z-index: -2;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(
+        90deg,
+        #06132cf5 0%,
+        #081d45ed 34%,
+        #081b409c 58%,
+        #081b4012 100%
+      );
+    }
+
+    .hero-content { padding: 26px 32px; max-width: 800px; }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: #bda7ff;
+      letter-spacing: 4px;
+      font-size: 11px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(25px, 3.1vw, 46px);
+      line-height: 1.35;
+    }
+
+    h1 span {
+      display: block;
+      color: var(--cyan);
+      background: linear-gradient(90deg, #c68bff, #25ece8, #7095ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-description {
+      margin: 12px 0 18px;
+      font-size: clamp(14px, 1.5vw, 20px);
+      color: #c2d6f4;
+    }
+
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+    .button {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      border-radius: 13px;
+      border: 1px solid #8880ef;
+      background: #0a2453d9;
+      font-weight: bold;
+      transition: transform .2s, filter .2s;
+    }
+
+    .button:hover { transform: translateY(-2px); filter: brightness(1.12); }
+
+    .button-primary {
+      color: #031d27;
+      border-color: #60fff3;
+      background: linear-gradient(110deg, #25f5dd, #42e9ff);
+      box-shadow: 0 0 22px #24e6eb44;
+    }
+
+    .statistics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      min-width: 0;
+      padding: 16px;
+      border: 1px solid var(--accent);
+      border-radius: var(--radius);
+      background: linear-gradient(115deg, var(--tint), #09182e);
+    }
+
+    .stat-icon {
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      color: var(--accent);
+      background: #ffffff0b;
+    }
+
+    .stat-icon .icon { width: 34px; height: 34px; }
+
+    .stat-value {
+      display: block;
+      font-size: 29px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .stat-label { font-size: 13px; }
+
+    .data-status { margin: -5px 0 0; color: var(--muted); font-size: 12px; }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      position: relative;
+      margin: 0;
+      padding-left: 18px;
+      font-size: clamp(18px, 1.8vw, 25px);
+      line-height: 1.5;
+    }
+
+    h2::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 7px;
+      bottom: 7px;
+      width: 6px;
+      border-radius: 6px;
+      background: var(--cyan);
+      box-shadow: 0 0 10px #24e6eb55;
+    }
+
+    .section-description { color: var(--muted); font-size: 12px; margin: 0; }
+
+    .knowledge-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .category {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      min-height: 94px;
+      padding: 12px 23px;
+      text-align: center;
+      border: 1px solid #4c5fb7;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #102344, #06172f);
+      transition: border-color .2s, transform .2s, background .2s;
+    }
+
+    .category:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent);
+      background: #112c4d;
+    }
+
+    .category .icon { color: var(--accent); width: 30px; height: 30px; }
+
+    .category-label { font-size: 12px; line-height: 1.45; }
+
+    .category-number {
+      position: absolute;
+      left: 10px;
+      top: 7px;
+      color: #a093ff;
+      font-size: 12px;
+    }
+
+    .arrow {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #bbd3f3;
+      font-size: 23px;
+    }
+
+    .public-section {
+      padding: 12px;
+      border: 1px solid #315ba3;
+      border-radius: var(--radius);
+      background: #071a32;
+    }
+
+    .view-all { color: #71bcff; font-size: 12px; flex-shrink: 0; }
+
+    .view-all:hover { text-decoration: underline; }
+
+    .public-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .public-card {
+      display: flex;
+      align-items: center;
+      position: relative;
+      gap: 10px;
+      min-height: 80px;
+      padding: 12px 25px 12px 12px;
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      background: linear-gradient(120deg, var(--tint), #06172e);
+      transition: transform .2s, filter .2s;
+    }
+
+    .public-card:hover { transform: translateY(-3px); filter: brightness(1.2); }
+
+    .public-card .icon { width: 33px; height: 33px; color: var(--accent); }
+
+    .public-card span { font-size: 12px; line-height: 1.5; }
+
+    .public-card strong { font-weight: 400; display: block; color: #dce9fb; }
+
+    .footer {
+      padding: 0 18px 18px;
+      text-align: right;
+      color: #91a8cd;
+      font-size: 11px;
+    }
+
+    [hidden] { display: none !important; }
+
+    @media (min-width: 1600px) {
+      .hero { min-height: 340px; }
+      .hero-content { padding: 38px; }
+      .category { min-height: 112px; }
+      .public-card { min-height: 96px; }
+    }
+
+    @media (max-width: 1200px) {
+      :root { --sidebar: 205px; }
+      .topbar { padding: 14px 18px; }
+      .logo { width: 68px; height: 68px; }
+      .clock { padding-left: 12px; }
+      .clock .icon { display: none; }
+      .hero-content { padding: 24px; }
+      .knowledge-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .public-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .stat { gap: 9px; padding: 12px; }
+      .stat-icon { width: 40px; height: 44px; }
+      .stat-label { font-size: 11px; }
+    }
+
+    @media (max-width: 800px) {
+      .topbar { flex-wrap: wrap; gap: 12px; }
+      .logo { width: 55px; height: 55px; }
+      .brand { flex-basis: calc(100% - 115px); }
+      .office-name { font-size: 19px; }
+      .values { font-size: 12px; }
+      .menu-button { display: inline-flex; margin-left: auto; }
+      .clock {
+        width: 100%;
+        padding: 0 0 0 67px;
+        border: 0;
+      }
+      .clock > div { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+      #time { font-size: 16px; }
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; border-right: 0; border-bottom: 1px solid var(--border); }
+      .sidebar.is-open { display: block; }
+      .workspace { font-size: 22px; margin-bottom: 12px; }
+      .navigation { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .nav-link { font-size: 13px; }
+      main { padding: 12px; }
+      .hero { min-height: 300px; }
+      .hero-image { width: 100%; opacity: .48; }
+      .hero::after { background: linear-gradient(90deg, #06132cf2, #071a3a8c); }
+      .hero-content { padding: 23px; }
+      h1 { font-size: clamp(26px, 5vw, 38px); }
+      .statistics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .stat-label { font-size: 13px; }
+      .section-heading { align-items: flex-start; flex-wrap: wrap; }
+      .section-description { width: 100%; padding-left: 18px; }
+      .footer { text-align: center; }
+    }
+
+    @media (max-width: 480px) {
+      .topbar { padding: 12px; }
+      .office-name { font-size: 16px; }
+      .values { font-size: 11px; }
+      .hero-content { padding: 20px 16px; }
+      .hero-actions { gap: 9px; }
+      .button { padding: 10px 13px; font-size: 13px; gap: 8px; }
+      .button .icon { width: 22px; height: 22px; }
+      .knowledge-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .public-grid { grid-template-columns: 1fr; }
+      .category-label { font-size: 13px; }
+      .public-card span { font-size: 14px; }
+      .nav-link { padding: 9px; gap: 8px; font-size: 12px; }
+      .nav-link .icon { width: 23px; height: 23px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition: none !important; }
+    }
+
+    @page { size: A4 landscape; margin: 8mm; }
+
+    @media print {
+      body { background: white; color: #14243b; font-size: 10px; }
+      .topbar { background: white; min-height: 65px; padding: 6px; }
+      .office-name { font-size: 22px; }
+      .values, .section-description, .data-status, .footer { color: #415574; }
+      .logo { width: 55px; height: 55px; }
+      .clock, .menu-button, .sidebar, .skip-link { display: none; }
+      .layout { display: block; }
+      main { padding: 8px 0; gap: 8px; }
+      .hero { min-height: 150px; }
+      .hero-content { padding: 14px; }
+      h1 { font-size: 25px; }
+      .hero-description { font-size: 13px; margin: 6px 0; }
+      .hero-actions { display: none; }
+      .statistics { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+      .stat { padding: 8px; background: white; }
+      .stat-value { font-size: 20px; }
+      .stat-label { font-size: 10px; }
+      h2 { font-size: 17px; }
+      .knowledge-grid { grid-template-columns: repeat(6, 1fr); gap: 5px; }
+      .category { min-height: 62px; padding: 7px 15px; background: white; }
+      .category .icon { width: 22px; height: 22px; }
+      .category-label { font-size: 9px; }
+      .category-number { font-size: 9px; left: 5px; top: 3px; }
+      .public-section { padding: 7px; background: white; }
+      .public-grid { grid-template-columns: repeat(5, 1fr); gap: 5px; }
+      .public-card { min-height: 53px; padding: 6px 14px 6px 6px; background: white; }
+      .public-card span, .public-card strong { font-size: 9px; color: #14243b; }
+      .public-card .icon { width: 23px; height: 23px; }
+      .arrow { font-size: 16px; right: 5px; }
+      .stat, .category, .public-card, .hero { break-inside: avoid; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">ข้ามไปเนื้อหาหลัก</a>
+
+  <!-- ไอคอน SVG ภายในไฟล์ ไม่ต้องติดตั้งไลบรารีเพิ่มเติม -->
+  <svg xmlns="http://www.w3.org/2000/svg"
+       width="0" height="0" aria-hidden="true"
+       style="position:absolute;overflow:hidden">
+    <symbol id="i-home" viewBox="0 0 24 24">
+      <path d="m3 10 9-7 9 7M5 9v12h5v-7h4v7h5V9"/>
+    </symbol>
+    <symbol id="i-file" viewBox="0 0 24 24">
+      <path d="M5 3h9l5 5v13H5zM14 3v6h5M8 13h8M8 17h6"/>
+    </symbol>
+    <symbol id="i-login" viewBox="0 0 24 24">
+      <path d="M14 3h6v18h-6M3 12h12m-5-5 5 5-5 5"/>
+    </symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/>
+    </symbol>
+    <symbol id="i-search" viewBox="0 0 24 24">
+      <circle cx="10" cy="10" r="7"/><path d="m15 15 6 6"/>
+    </symbol>
+    <symbol id="i-database" viewBox="0 0 24 24">
+      <ellipse cx="12" cy="5" rx="8" ry="3"/>
+      <path d="M4 5v14c0 4 16 4 16 0V5M4 10c0 4 16 4 16 0M4 15c0 4 16 4 16 0"/>
+    </symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24">
+      <path d="M4 20v-6h3v6zM10 20V9h3v11zM16 20V3h3v17z"/>
+    </symbol>
+    <symbol id="i-book" viewBox="0 0 24 24">
+      <path d="M12 5C9 2 5 3 3 4v16c3-2 6-2 9 0 3-2 6-2 9 0V4c-2-1-6-2-9 1zm0 0v15"/>
+    </symbol>
+    <symbol id="i-ai" viewBox="0 0 24 24">
+      <rect x="4" y="6" width="16" height="14" rx="4"/>
+      <path d="M12 2v4M1 11h3M20 11h3M8 11v2M16 11v2M8 16h8"/>
+    </symbol>
+    <symbol id="i-megaphone" viewBox="0 0 24 24">
+      <path d="M3 9v6h5l10 5V4L8 9zM8 15l2 6M21 9v6"/>
+    </symbol>
+    <symbol id="i-users" viewBox="0 0 24 24">
+      <circle cx="9" cy="7" r="3"/>
+      <path d="M2 21v-3a7 7 0 0 1 14 0v3M17 4a3 3 0 0 1 0 6M19 14c3 1 3 4 3 7"/>
+    </symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 3"/>
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"/><path d="m7 12 3 3 7-7"/>
+    </symbol>
+    <symbol id="i-monitor" viewBox="0 0 24 24">
+      <rect x="2" y="3" width="20" height="14" rx="2"/>
+      <path d="M12 17v4M8 21h8"/>
+    </symbol>
+    <symbol id="i-scale" viewBox="0 0 24 24">
+      <path d="M12 3v18M7 21h10M3 7h18M5 7l-4 9h8zm14 0-4 9h8z"/>
+    </symbol>
+    <symbol id="i-building" viewBox="0 0 24 24">
+      <path d="M3 21V7l9-4v18M12 9h9v12M1 21h22M6 9h2M6 13h2M6 17h2M15 12h3M15 16h3"/>
+    </symbol>
+    <symbol id="i-government" viewBox="0 0 24 24">
+      <path d="m2 8 10-6 10 6zM4 11v7M9 11v7M15 11v7M20 11v7M2 21h20M3 18h18"/>
+    </symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="4"/>
+      <path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>
+    </symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24">
+      <path d="m2 19 7-8 5 4 8-11M15 4h7v7"/>
+    </symbol>
+    <symbol id="i-leaf" viewBox="0 0 24 24">
+      <path d="M4 19C-1 7 10 2 22 2c0 13-7 20-18 17zm0 3c2-7 6-11 13-15"/>
+    </symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10"/>
+      <ellipse cx="12" cy="12" rx="4" ry="10"/>
+      <path d="M2 12h20M4 6h16M4 18h16"/>
+    </symbol>
+    <symbol id="i-network" viewBox="0 0 24 24">
+      <path d="M9 2h6v6H9zM2 16h6v6H2zM16 16h6v6h-6zM12 8v4M5 16v-4h14v4"/>
+    </symbol>
+    <symbol id="i-water" viewBox="0 0 24 24">
+      <path d="M12 2S6 9 6 12a6 6 0 0 0 12 0c0-3-6-10-6-10zM2 21c3-3 5 3 8 0s5 3 8 0 3-1 4 0"/>
+    </symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="4"/>
+      <path d="M12 1v3M12 20v3M1 12h3M20 12h3M4 4l2 2M18 18l2 2M4 20l2-2M18 6l2-2"/>
+    </symbol>
+    <symbol id="i-money" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M9 6v12h4a3 3 0 0 0 0-6H9h4a3 3 0 0 0 0-6zM12 4v16"/>
+    </symbol>
+    <symbol id="i-dam" viewBox="0 0 24 24">
+      <path d="m5 3-2 13h18L19 3M9 3v13M15 3v13M1 21c3-3 5 3 8 0s5 3 8 0 5 1 6 0"/>
+    </symbol>
+    <symbol id="i-solar" viewBox="0 0 24 24">
+      <path d="m5 7-3 11h20L19 7zM9 7l-1 11M15 7l1 11M4 12h16M12 18v4M8 22h8M12 1v3M5 2l2 2M19 2l-2 2"/>
+    </symbol>
+    <symbol id="i-road" viewBox="0 0 24 24">
+      <path d="M8 2 2 22M16 2l6 20M12 3v3M12 10v4M12 18v4"/>
+    </symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24">
+      <path d="M3 6h18M3 12h18M3 18h18"/>
+    </symbol>
+  </svg>
+
+  <header class="topbar">
+    <div class="logo">
+      <img id="logoImage" src="assets/logo.jpeg" alt="ตราสำนักงานการตรวจเงินแผ่นดิน">
+      <span id="logoFallback" hidden>สตง.</span>
+    </div>
+
+    <div class="brand">
+      <p class="office-name">สำนักตรวจเงินแผ่นดินจังหวัดสุรินทร์</p>
+      <p class="values">สัตย์ซื่อ มืออาชีพ อิสระและเป็นกลาง</p>
+    </div>
+
+    <button class="menu-button" id="menuButton" type="button"
+            aria-label="เปิดเมนู" aria-expanded="false" aria-controls="sidebar">
+      <svg class="icon" aria-hidden="true"><use href="#i-menu"></use></svg>
+    </button>
+
+    <div class="clock" aria-label="วันและเวลาประเทศไทย">
+      <svg class="icon" aria-hidden="true"><use href="#i-clock"></use></svg>
+      <div>
+        <time id="time">--:--:--</time>
+        <span id="date"></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <p class="workspace">
+        NON <span>AUDIT</span>
+        <small>WORKSPACE</small>
+      </p>
+      <nav class="navigation" id="navigation" aria-label="เมนูหลัก"></nav>
+    </aside>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="heroTitle">
+        <img id="heroImage" class="hero-image"
+             src="assets/office-team.jpeg"
+             alt="คณะเจ้าหน้าที่สำนักตรวจเงินแผ่นดินจังหวัดสุรินทร์"
+             fetchpriority="high">
+
+        <div class="hero-content">
+          <p class="eyebrow">SURIN · NON AUDIT</p>
+          <h1 id="heroTitle">
+            ตรวจสอบเพื่ออนาคต
+            <span>ประเทศชาติและประชาชน</span>
+          </h1>
+          <p class="hero-description">
+            สร้างรายงาน จัดเก็บ และติดตามผลในระบบเดียว
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="create-report.html">
+              <svg class="icon" aria-hidden="true"><use href="#i-file"></use></svg>
+              เริ่มสร้างรายงาน <span aria-hidden="true">›</span>
+            </a>
+            <a class="button" href="tracking.html">
+              <svg class="icon" aria-hidden="true"><use href="#i-chart"></use></svg>
+              ติดตามผล <span aria-hidden="true">›</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="statistics" aria-label="สรุปจำนวนรายงาน">
+        <article class="stat" style="--accent:var(--blue);--tint:#092958">
+          <div class="stat-icon">
+            <svg class="icon" aria-hidden="true"><use href="#i-file"></use></svg>
+          </div>
+          <div>
+            <span class="stat-value" id="totalReports">—</span>
+            <span class="stat-label">รายงานทั้งหมด</span>
+          </div>
+        </article>
+        <article class="stat" style="--accent:var(--green);--tint:#06352c">
+          <div class="stat-icon">
+            <svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg>
+          </div>
+          <div>
+            <span class="stat-value" id="approvedReports">—</span>
+            <span class="stat-label">อนุมัติแล้ว</span>
+          </div>
+        </article>
+        <article class="stat" style="--accent:var(--red);--tint:#3b162b">
+          <div class="stat-icon">
+            <svg class="icon" aria-hidden="true"><use href="#i-clock"></use></svg>
+          </div>
+          <div>
+            <span class="stat-value" id="overdueItems">—</span>
+            <span class="stat-label">ติดตามเกินกำหนด</span>
+          </div>
+        </article>
+        <article class="stat" style="--accent:var(--purple);--tint:#261455">
+          <div class="stat-icon">
+            <svg class="icon" aria-hidden="true"><use href="#i-megaphone"></use></svg>
+          </div>
+          <div>
+            <span class="stat-value" id="publishedReports">—</span>
+            <span class="stat-label">เผยแพร่แล้ว</span>
+          </div>
+        </article>
+      </section>
+
+      <p class="data-status" id="dataStatus" role="status">
+        ยังไม่ได้เชื่อมข้อมูลสถิติจากฐานข้อมูลกลาง
+      </p>
+
+      <section aria-labelledby="knowledgeTitle">
+        <div class="section-heading">
+          <h2 id="knowledgeTitle">ฐานข้อมูลเพื่อสร้างรายงาน</h2>
+          <p class="section-description">ข้อมูลประกอบการวิเคราะห์และจัดทำรายงาน</p>
+        </div>
+        <div class="knowledge-grid" id="knowledgeGrid"></div>
+      </section>
+
+      <section class="public-section" aria-labelledby="publicTitle">
+        <div class="section-heading">
+          <h2 id="publicTitle">ผลงานสาธารณะ</h2>
+          <a class="view-all" href="public-results.html">
+            ดูผลงานทั้งหมด <span aria-hidden="true">→</span>
+          </a>
+        </div>
+        <div class="public-grid" id="publicGrid"></div>
+      </section>
+
+      <noscript>
+        <p>กรุณาเปิด JavaScript เพื่อแสดงเมนูและรายการหมวดข้อมูล</p>
+        <p>
+          <a href="knowledge-base.html">ฐานข้อมูลเพื่อสร้างรายงาน</a> ·
+          <a href="public-results.html">ผลงานสาธารณะ</a> ·
+          <a href="login.html">เข้าสู่ระบบ</a>
+        </p>
+      </noscript>
+    </main>
+  </div>
+
+  <footer class="footer">
+    สำนักตรวจเงินแผ่นดินจังหวัดสุรินทร์ · NON AUDIT WORKSPACE
+  </footer>
+
+  <script>
+    "use strict";
+
+    // ชื่อไฟล์ทั้ง 12 หน้า ต้องสร้างไฟล์ปลายทางให้ตรงกับรายการนี้
+    const pages = [
+      ["หน้าแรก", "index.html", "home", "cyan"],
+      ["ลงทะเบียน", "register.html", "file", "green"],
+      ["เข้าสู่ระบบ", "login.html", "login", "blue"],
+      ["สร้างรายงาน", "create-report.html", "plus", "purple"],
+      ["ค้นหารายงาน", "search-reports.html", "search", "cyan"],
+      ["จัดเก็บรายงาน", "archive-reports.html", "database", "gold"],
+      ["ติดตามผล", "tracking.html", "chart", "red"],
+      ["คู่มือ / ถามตอบ", "help.html", "book", "pink"],
+      ["AI ช่วยทำงาน", "ai-assistant.html", "ai", "purple"],
+      ["เผยแพร่ผลงาน", "public-results.html", "megaphone", "cyan"],
+      ["ผู้ใช้งาน / Admin", "visitors-admin.html", "users", "blue"],
+      ["ฐานข้อมูลสร้างรายงาน", "knowledge-base.html", "database", "gold"]
+    ];
+
+    const knowledge = [
+      ["ด้านงบประมาณ", "budget", "database", "gold"],
+      ["ด้านกำลังคน", "personnel", "users", "blue"],
+      ["ด้านเทคโนโลยี", "technology", "monitor", "blue"],
+      ["ด้านกฎหมาย", "law", "scale", "pink"],
+      ["ด้านระเบียบ", "regulations", "file", "cyan"],
+      ["ด้านประกาศ", "announcements", "megaphone", "gold"],
+      ["ด้านมติคณะรัฐมนตรี", "cabinet", "government", "purple"],
+      ["ด้านคำสั่งระเบียบแบบแผนต่างๆ", "orders", "file", "green"],
+      ["ด้านหลักวิชาการ", "academic", "book", "pink"],
+      ["ด้านคู่มือต่างๆ", "manuals", "book", "gold"],
+      ["ด้านแผนพัฒนาต่างๆ", "plans", "chart", "green"],
+      ["ด้านมาตรฐานต่างๆ", "standards", "settings", "blue"],
+      ["ด้านเศรษฐกิจ", "economy", "trend", "cyan"],
+      ["ด้านสังคม", "society", "users", "pink"],
+      ["ด้านการเมือง", "politics", "government", "gold"],
+      ["ด้านสิ่งแวดล้อม", "environment", "leaf", "green"],
+      ["ด้านต่างประเทศ", "international", "globe", "blue"],
+      ["ด้านระบบราชการ", "government", "network", "gold"]
+    ];
+
+    const publicCategories = [
+      ["การจัดการน้ำ", "water", "water", "cyan", "#063653"],
+      ["การแก้ปัญหาภัยแล้ง", "drought", "sun", "gold", "#342945"],
+      ["สิ่งก่อสร้างทิ้งร้าง", "abandoned", "building", "purple", "#281b4b"],
+      ["เงินอุดหนุนเฉพาะกิจ", "grants", "money", "pink", "#39182e"],
+      ["การบริหารงบจังหวัด", "provincial-budget", "database", "green", "#07342f"],
+      ["ปัญหาสิ่งแวดล้อม", "environment", "leaf", "green", "#07342f"],
+      ["ปัญหาเขื่อนป้องกันตลิ่ง", "riverbank", "dam", "blue", "#102e54"],
+      ["ไฟฟ้าโซล่าเชลล์", "solar", "solar", "gold", "#30271b"],
+      ["การก่อสร้างถนน", "roads", "road", "blue", "#172741"],
+      ["ระบบรายงานการเงิน อปท", "local-finance", "file", "purple", "#291943"]
+    ];
+
+    const svgNamespace = "http://www.w3.org/2000/svg";
+
+    function createIcon(name) {
+      const svg = document.createElementNS(svgNamespace, "svg");
+      svg.classList.add("icon");
+      svg.setAttribute("aria-hidden", "true");
+
+      const use = document.createElementNS(svgNamespace, "use");
+      use.setAttribute("href", "#i-" + name);
+      svg.append(use);
+      return svg;
+    }
+
+    function setAccent(element, color) {
+      element.style.setProperty("--accent", "var(--" + color + ")");
+    }
+
+    function createArrow() {
+      const arrow = document.createElement("span");
+      arrow.className = "arrow";
+      arrow.textContent = "›";
+      arrow.setAttribute("aria-hidden", "true");
+      return arrow;
+    }
+
+    const navigation = document.getElementById("navigation");
+
+    pages.forEach(([label, file, icon, color], index) => {
+      const link = document.createElement("a");
+      link.className = "nav-link";
+      link.href = file;
+      setAccent(link, color);
+      if (index === 0) link.setAttribute("aria-current", "page");
+
+      const text = document.createElement("span");
+      text.textContent = label;
+
+      link.append(createIcon(icon), text);
+      navigation.append(link);
+    });
+
+    const knowledgeGrid = document.getElementById("knowledgeGrid");
+
+    knowledge.forEach(([label, category, icon, color], index) => {
+      const link = document.createElement("a");
+      link.className = "category";
+      link.href = "knowledge-base.html?category=" + encodeURIComponent(category);
+      setAccent(link, color);
+
+      const number = document.createElement("span");
+      number.className = "category-number";
+      number.textContent = String(index + 1).padStart(2, "0");
+      number.setAttribute("aria-hidden", "true");
+
+      const text = document.createElement("span");
+      text.className = "category-label";
+      text.textContent = label;
+
+      link.append(number, createIcon(icon), text, createArrow());
+      knowledgeGrid.append(link);
+    });
+
+    const publicGrid = document.getElementById("publicGrid");
+
+    publicCategories.forEach(([label, category, icon, color, tint]) => {
+      const link = document.createElement("a");
+      link.className = "public-card";
+      link.href = "public-results.html?category=" + encodeURIComponent(category);
+      setAccent(link, color);
+      link.style.setProperty("--tint", tint);
+
+      const text = document.createElement("span");
+      const prefix = document.createElement("strong");
+      prefix.textContent = "ผลวิเคราะห์";
+      text.append(prefix, document.createTextNode(label));
+
+      link.append(createIcon(icon), text, createArrow());
+      publicGrid.append(link);
+    });
+
+    // นาฬิกาใช้เวลาประเทศไทย ไม่ขึ้นกับเขตเวลาของอุปกรณ์
+    const timeFormatter = new Intl.DateTimeFormat("th-TH", {
+      timeZone: "Asia/Bangkok",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hourCycle: "h23"
+    });
+
+    const dateFormatter = new Intl.DateTimeFormat("th-TH", {
+      timeZone: "Asia/Bangkok",
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    });
+
+    function updateClock() {
+      const now = new Date();
+      const time = document.getElementById("time");
+      time.textContent = timeFormatter.format(now);
+      time.dateTime = now.toISOString();
+      document.getElementById("date").textContent = dateFormatter.format(now);
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // เมนูสำหรับมือถือ
+    const menuButton = document.getElementById("menuButton");
+    const sidebar = document.getElementById("sidebar");
+
+    function closeMenu() {
+      sidebar.classList.remove("is-open");
+      menuButton.setAttribute("aria-expanded", "false");
+      menuButton.setAttribute("aria-label", "เปิดเมนู");
+    }
+
+    menuButton.addEventListener("click", () => {
+      const open = sidebar.classList.toggle("is-open");
+      menuButton.setAttribute("aria-expanded", String(open));
+      menuButton.setAttribute("aria-label", open ? "ปิดเมนู" : "เปิดเมนู");
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && sidebar.classList.contains("is-open")) {
+        closeMenu();
+        menuButton.focus();
+      }
+    });
+
+    window.matchMedia("(min-width: 801px)").addEventListener("change", closeMenu);
+
+    // แสดงข้อความแทนเมื่อยังไม่ได้อัปโหลดภาพ
+    const logoImage = document.getElementById("logoImage");
+
+    function logoFallback() {
+      logoImage.hidden = true;
+      document.getElementById("logoFallback").hidden = false;
+    }
+
+    logoImage.addEventListener("error", logoFallback);
+    if (logoImage.complete && logoImage.naturalWidth === 0) logoFallback();
+
+    const heroImage = document.getElementById("heroImage");
+
+    function heroFallback() {
+      heroImage.hidden = true;
+    }
+
+    heroImage.addEventListener("error", heroFallback);
+    if (heroImage.complete && heroImage.naturalWidth === 0) heroFallback();
+
+    /*
+      จุดเชื่อมสถิติสำหรับระบบหลังบ้านในขั้นตอนถัดไป
+
+      ระบบหลังบ้านต้องตรวจสอบสิทธิ์ก่อนส่งข้อมูล
+      ข้อมูลที่ส่งเข้าฟังก์ชัน:
+      {
+        totalReports: 12,
+        approvedReports: 8,
+        overdueItems: 2,
+        publishedReports: 4
+      }
+
+      ฟังก์ชันนี้แสดงผลเท่านั้น ยังไม่ได้ดึงข้อมูลจากฐานข้อมูล
+      ไม่ควรใส่ข้อมูลรายงานภายในหรือกุญแจลับลงในไฟล์นี้
+    */
+    window.setDashboardStats = function (data) {
+      const keys = [
+        "totalReports",
+        "approvedReports",
+        "overdueItems",
+        "publishedReports"
+      ];
+
+      const valid = data && keys.every(key =>
+        Number.isSafeInteger(data[key]) && data[key] >= 0
+      );
+
+      if (!valid) {
+        keys.forEach(key => {
+          document.getElementById(key).textContent = "—";
+        });
+        document.getElementById("dataStatus").textContent =
+          "ไม่สามารถแสดงสถิติได้: ข้อมูลที่ได้รับไม่ครบถ้วนหรือไม่ถูกต้อง";
+        return;
+      }
+
+      const formatter = new Intl.NumberFormat("th-TH");
+      keys.forEach(key => {
+        document.getElementById(key).textContent = formatter.format(data[key]);
+      });
+
+      document.getElementById("dataStatus").textContent =
+        "ปรับปรุงสถิติล่าสุด " + timeFormatter.format(new Date()) + " น.";
+    };
+  </script>
+</body>
+</html>
