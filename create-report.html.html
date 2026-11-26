@@ -18,6 +18,18 @@ dialog{width:min(800px,94vw);max-height:88vh;background:#0b213d;color:white;bord
 @media(max-width:900px){.layout{grid-template-columns:1fr;padding:10px}.sidebar{position:static}.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}header strong{font-size:17px}.sheet{padding:20px;min-height:0}.row{grid-template-columns:minmax(0,1fr) 60px auto}}
 @media print{body{background:white;color:black}header,#gate,#workspace,dialog,footer{display:none!important}.print-only{display:block}.sheet{width:auto!important;max-width:none;margin:0;padding:0;min-height:0;break-before:page}.sheet:first-child{break-before:auto}.cover{min-height:240mm}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style>
+<style>
+.layout{max-width:2000px;grid-template-columns:205px minmax(340px,1fr) minmax(320px,.85fr);align-items:start}
+.card{min-width:0}.sidebar{min-width:0}.live-panel{position:sticky;top:12px;min-width:0;border:1px solid var(--line);border-radius:15px;background:#102440;overflow:hidden}
+.live-heading{padding:12px 14px;border-bottom:1px solid var(--line)}.live-heading h2{margin:0;font-size:17px}.live-heading p{margin:4px 0 0}.live-meta{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:8px}
+.live-viewport{height:calc(100dvh - 170px);min-height:280px;overflow:auto;padding:16px 12px;background:#39465c;overscroll-behavior:contain}
+.live-frame{position:relative;margin:0 auto 16px;flex-shrink:0}.live-frame .sheet{position:absolute;top:0;left:0;max-width:none!important;margin:0!important;transform-origin:top left;box-shadow:0 3px 16px #0005;overflow:hidden;padding:20mm!important;min-height:0!important;color-scheme:light}
+.live-frame .sheet h1{font-size:1.55em}.live-frame .sheet .cover{min-height:100%!important;height:100%}.live-frame .sheet img{max-height:170mm;object-fit:contain}.live-page-number{text-align:center;color:#e4edff;font-size:12px;margin:-8px 0 14px}.live-measure{position:absolute;visibility:hidden;pointer-events:none;left:-20000px;top:0}.live-measure .sheet{position:relative;transform:none!important;box-shadow:none}
+.preview-jump{display:none}
+@media(max-width:1250px) and (min-width:761px){.layout{grid-template-columns:minmax(340px,1fr) minmax(300px,.8fr)}.sidebar{grid-column:1/-1;position:static}.tabs{grid-template-columns:repeat(4,minmax(0,1fr))}.live-panel{grid-column:2;grid-row:2}.card{grid-column:1;grid-row:2}}
+@media(max-width:760px){.layout{grid-template-columns:1fr;padding:10px}.sidebar,.live-panel{position:static}.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.live-viewport{height:75dvh;min-height:320px}.preview-jump{display:inline-block}.live-panel{scroll-margin-top:12px}}
+@media print{.live-panel,.preview-jump{display:none!important}}
+</style>
 <style id="printStyle">@page{size:A4 portrait;margin:20mm}</style>
 </head>
 <body>
@@ -27,6 +39,7 @@ dialog{width:min(800px,94vw);max-height:88vh;background:#0b213d;color:white;bord
   <aside class="sidebar"><h2>รายงาน 12 ส่วน</h2><p id="user" class="hint"></p><nav id="tabs" class="tabs" aria-label="ส่วนของรายงาน"></nav><p class="hint">ทุกคนสร้างรายงานได้ทันที · บันทึกเฉพาะเบราว์เซอร์และเครื่องนี้ · ดาวน์โหลด JSON เพื่อสำรองหรือย้ายเครื่อง</p></aside>
   <main class="card">
    <h1 id="sectionTitle"></h1>
+   <a class="preview-jump" href="#livePanel">ดูภาพตัวอย่างกระดาษ ↓</a>
    <div class="toolbar" id="formatBar"></div>
    <div class="toolbar">
     <button class="button primary" id="save">บันทึกในเครื่อง</button>
@@ -43,6 +56,11 @@ dialog{width:min(800px,94vw);max-height:88vh;background:#0b213d;color:white;bord
    <div class="status" id="status" role="status" aria-live="polite" tabindex="-1">ยังไม่ได้บันทึก</div>
    <div id="editor"></div>
   </main>
+  <aside class="live-panel" id="livePanel" aria-labelledby="liveTitle">
+   <div class="live-heading"><h2 id="liveTitle">ภาพตัวอย่างรายงาน</h2><p class="hint" id="liveSection">ส่วนที่กำลังจัดทำ</p><div class="live-meta"><span id="livePaper">A4 · แนวตั้ง</span><span id="liveScale">ย่อพอดีจอ</span></div></div>
+   <div class="live-viewport" id="liveViewport" aria-label="ภาพตัวอย่างกระดาษรายงาน"><div id="livePages"></div></div>
+   <div class="live-heading"><small class="hint">อัปเดตขณะพิมพ์ · เลื่อนดูได้เมื่อมีหลายหน้า · เลขหน้าสุดท้ายให้ตรวจจาก PDF</small></div>
+  </aside>
  </div>
 </div>
 <dialog id="previewDialog"><div class="toolbar"><h2>ตัวอย่างรายงาน</h2><button class="button" id="closePreview">ปิด</button></div><div id="previewBody" class="preview-wrap"></div></dialog>
@@ -84,7 +102,7 @@ function issueSchema(){return [
 function fresh(){const parts={};Object.entries(SCHEMA).forEach(([id,schema])=>parts[id]=blankFields(schema));parts.cover.footer.text="สำนักงานการตรวจเงินแผ่นดิน";return {schemaVersion:2,settings:{paper:"A4",orientation:"portrait",font:"Tahoma",fontSize:16,lineHeight:1.6,coverTheme:"gold"},parts,issues:[],tableItems:[],figureItems:[],pages:{}};}
 let doc=fresh(),active="cover",reportId=null,version=null,busy=false,dirty=false,saveKey=uid(),imageTarget=null,aiProposal=null;
 function status(text,type=""){const e=$("status");e.textContent=text;e.className="status "+type;}
-function changed(){dirty=true;saveKey=uid();status("มีการแก้ไขที่ยังไม่ได้บันทึก");}
+function changed(){dirty=true;saveKey=uid();status("มีการแก้ไขที่ยังไม่ได้บันทึก");scheduleLivePreview();}
 const STORAGE_NAME="non-audit-public-reports";
 function database(){return new Promise((resolve,reject)=>{const r=indexedDB.open(STORAGE_NAME,1);r.onupgradeneeded=()=>r.result.createObjectStore("reports",{keyPath:"id"});r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}
 async function stored(mode,action){const db=await database();try{return await new Promise((resolve,reject)=>{const tx=db.transaction("reports",mode),store=tx.objectStore("reports");let value;const req=action(store);if(req)req.onsuccess=()=>{value=req.result;};tx.oncomplete=()=>resolve(value);tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error("บันทึกถูกยกเลิก"));});}finally{db.close();}}
@@ -127,6 +145,7 @@ function listEditor(container,type){
  container.append(button("＋เพิ่มรายการ",()=>{items.push({id:uid(),title:"",page:""});changed();renderEditor();}));
 }
 function renderEditor(){
+ scheduleLivePreview();
  $("sectionTitle").textContent=SECTIONS.find(([id])=>id===active)[1];$("tabs").querySelectorAll("button").forEach(b=>{const selected=b.dataset.id===active;b.classList.toggle("active",selected);b.setAttribute("aria-pressed",String(selected));});
  const e=$("editor");e.replaceChildren();
  if(active==="toc"){
@@ -178,6 +197,66 @@ function buildPreview(ids,parent){
   }parent.append(page);
  });
 }
+let liveTimer=null,liveResizeFrame=null;
+function scheduleLivePreview(){clearTimeout(liveTimer);liveTimer=setTimeout(renderLivePreview,180);}
+function fitLivePages(){
+ const viewport=$("liveViewport"),frames=$("livePages").querySelectorAll(".live-frame");if(!frames.length)return;
+ const width=Math.max(80,viewport.clientWidth-28),height=Math.max(180,viewport.clientHeight-24);let scale=1;
+ frames.forEach(frame=>{const sheet=frame.firstElementChild,w=sheet.offsetWidth,h=sheet.offsetHeight;scale=Math.min(1,width/w,height/h);sheet.style.transform="scale("+scale+")";frame.style.width=(w*scale)+"px";frame.style.height=(h*scale)+"px";});
+ $("liveScale").textContent="พอดีจอ · "+Math.round(scale*100)+"%";
+}
+function renderLivePreview(){
+ const viewport=$("liveViewport"),target=$("livePages");if(!viewport||!target)return;
+ const oldScroll=viewport.scrollTop,section=active;
+ const size=({A4:[210,297],A3:[297,420],Letter:[216,279],Legal:[216,356]})[doc.settings.paper];
+ const [width,height]=doc.settings.orientation==="landscape"?[size[1],size[0]]:size;
+ const measure=make("div",undefined,"live-measure"),source=make("div");measure.append(source);target.append(measure);
+ try{
+  buildPreview([section],source);const original=source.firstElementChild;
+  original.querySelectorAll("[id]").forEach(el=>{el.id="live-"+el.id;});original.removeAttribute("id");
+  original.querySelectorAll('a[href^="#"]').forEach(a=>a.removeAttribute("href"));
+  const blocks=[...original.children],pages=[];
+  function page(){const p=original.cloneNode(false);p.style.width=width+"mm";p.style.height=height+"mm";p.style.minHeight="0";p.style.maxWidth="none";p.style.padding="20mm";p.style.overflow="hidden";measure.append(p);pages.push(p);return p;}
+  let current=page();
+  function fits(){const last=current.lastElementChild;if(!last)return true;const rect=current.getBoundingClientRect();return last.getBoundingClientRect().bottom<=rect.bottom-parseFloat(getComputedStyle(current).paddingBottom)+1;}
+  function append(block){
+   current.append(block);if(fits())return;
+   block.remove();if(current.children.length){current=page();current.append(block);if(fits())return;block.remove();}
+   // ข้อความยาวแบ่งต่อหน้าถัดไปโดยไม่ตัดเนื้อหาทิ้ง
+   if(block.tagName==="P"&&block.childElementCount===0&&block.textContent.length>1){
+    let rest=Array.from(block.textContent);
+    while(rest.length){const part=block.cloneNode(false);current.append(part);let lo=1,hi=rest.length,best=0;
+     while(lo<=hi){const mid=Math.floor((lo+hi)/2);part.textContent=rest.slice(0,mid).join("");if(fits()){best=mid;lo=mid+1;}else hi=mid-1;}
+     best=Math.max(1,best);if(best<rest.length){const candidate=rest.slice(0,best).join(""),space=candidate.lastIndexOf(" ");if(space>candidate.length*.7)best=Array.from(candidate.slice(0,space+1)).length;}
+     part.textContent=rest.slice(0,best).join("");rest=rest.slice(best);if(rest.length)current=page();
+    }return;
+   }
+   // ตารางยาวแบ่งตามแถว พร้อมหัวตารางซ้ำ
+   const table=block.matches("table")?block:block.querySelector("table");
+   if(table&&table.rows.length>2){
+    const rows=[...table.rows],head=rows.shift();let fragment=null,body=null;
+    for(const row of rows){
+     if(!fragment){fragment=block.cloneNode(true);const t=fragment.matches("table")?fragment:fragment.querySelector("table");t.replaceChildren();body=make("tbody");t.append(body);body.append(head.cloneNode(true));current.append(fragment);}
+     const copy=row.cloneNode(true);body.append(copy);
+     if(!fits()&&body.children.length>2){copy.remove();current=page();fragment=null;const f=block.cloneNode(true),t=f.matches("table")?f:f.querySelector("table");t.replaceChildren();body=make("tbody");t.append(body);body.append(head.cloneNode(true),copy);current.append(f);fragment=f;}
+    }
+    if(!fits())shrink(fragment);return;
+   }
+   current.append(block);shrink(block);
+  }
+  function shrink(block){const available=current.clientHeight-parseFloat(getComputedStyle(current).paddingTop)-parseFloat(getComputedStyle(current).paddingBottom);const used=block.getBoundingClientRect().height;if(used>available)block.style.zoom=String(Math.max(.05,(available-16)/used));}
+  if(section==="cover"){current.append(...blocks);const cover=current.firstElementChild;cover.style.minHeight="100%";cover.style.height="100%";if(!fits())shrink(cover);}
+  else blocks.forEach(append);
+  const result=document.createDocumentFragment();pages.forEach((p,i)=>{const frame=make("div",undefined,"live-frame");frame.append(p);result.append(frame,make("div","หน้า "+(i+1)+" / "+pages.length,"live-page-number"));});
+  target.replaceChildren(result);
+  $("liveSection").textContent=SECTIONS.find(([id])=>id===section)[1]+" · "+pages.length+" หน้า";
+  $("livePaper").textContent=doc.settings.paper+" · "+(doc.settings.orientation==="landscape"?"แนวนอน":"แนวตั้ง");
+  fitLivePages();viewport.scrollTop=oldScroll;
+  target.querySelectorAll("img").forEach(img=>{img.addEventListener("load",fitLivePages,{once:true});});
+ }catch{measure.remove();$("liveSection").textContent="แสดงภาพตัวอย่างไม่สำเร็จ กรุณาแก้ไขข้อความหรือลองเปลี่ยนส่วน";}
+}
+if(typeof ResizeObserver!=="undefined")new ResizeObserver(()=>{cancelAnimationFrame(liveResizeFrame);liveResizeFrame=requestAnimationFrame(fitLivePages);}).observe($("liveViewport"));
+window.addEventListener("resize",()=>{cancelAnimationFrame(liveResizeFrame);liveResizeFrame=requestAnimationFrame(fitLivePages);});
 async function view(all=false,print=false){try{const ids=all?SECTIONS.map(([id])=>id):[active];
  if(print){$("printStyle").textContent="@page{size:"+doc.settings.paper+" "+doc.settings.orientation+";margin:20mm}";buildPreview(ids,$("printArea"));const images=[...$("printArea").querySelectorAll("img")];await Promise.all(images.map(img=>img.decode().catch(()=>{})));window.print();}
  else{buildPreview(ids,$("previewBody"));$("previewDialog").showModal();}
