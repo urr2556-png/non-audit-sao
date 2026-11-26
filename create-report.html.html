@@ -21,22 +21,23 @@ dialog{width:min(800px,94vw);max-height:88vh;background:#0b213d;color:white;bord
 <style id="printStyle">@page{size:A4 portrait;margin:20mm}</style>
 </head>
 <body>
-<header><div><strong>สำนักตรวจเงินแผ่นดินจังหวัดสุรินทร์</strong><small>สัตย์ซื่อ มืออาชีพ อิสระและเป็นกลาง</small></div><nav><a href="index.html">หน้าแรก</a><a href="search-reports.html">ค้นหารายงาน</a><a href="login.html">เข้าสู่ระบบ</a></nav></header>
-<section id="gate" class="gate"><h1>ตรวจสอบสิทธิ์เข้าใช้งาน</h1><p id="gateText" role="status">กำลังตรวจสอบ session...</p><a href="login.html">เข้าสู่ระบบ</a></section>
-<div id="workspace" hidden>
+<header><div><strong>สำนักตรวจเงินแผ่นดินจังหวัดสุรินทร์</strong><small>สัตย์ซื่อ มืออาชีพ อิสระและเป็นกลาง</small></div><nav><a href="index.html">หน้าแรก</a><a href="search-reports.html">ค้นหารายงาน</a></nav></header>
+<div id="workspace">
  <div class="layout">
-  <aside class="sidebar"><h2>รายงาน 12 ส่วน</h2><p id="user" class="hint"></p><nav id="tabs" class="tabs" aria-label="ส่วนของรายงาน"></nav><p class="hint">ทุกส่วนอยู่ในรายงานฉบับเดียวกัน การบันทึกจะบันทึกทั้งเล่ม</p></aside>
+  <aside class="sidebar"><h2>รายงาน 12 ส่วน</h2><p id="user" class="hint"></p><nav id="tabs" class="tabs" aria-label="ส่วนของรายงาน"></nav><p class="hint">ทุกคนสร้างรายงานได้ทันที · บันทึกเฉพาะเบราว์เซอร์และเครื่องนี้ · ดาวน์โหลด JSON เพื่อสำรองหรือย้ายเครื่อง</p></aside>
   <main class="card">
    <h1 id="sectionTitle"></h1>
    <div class="toolbar" id="formatBar"></div>
    <div class="toolbar">
-    <button class="button primary" id="save">บันทึกทั้งเล่ม</button>
+    <button class="button primary" id="save">บันทึกในเครื่อง</button>
     <button class="button" id="viewSection">ดูส่วนนี้</button>
     <button class="button" id="viewAll">ดูทั้งเล่ม</button>
     <button class="button" id="printSection">พิมพ์ส่วนนี้</button>
     <button class="button" id="printAll">พิมพ์ทั้งเล่ม / PDF</button>
     <button class="button ai" id="aiSection">AI ช่วยร่าง / ออกแบบ</button>
     <button class="button" id="backup">ดาวน์โหลดสำเนา JSON</button>
+<button class="button" id="import">เปิดไฟล์ JSON</button>
+<button class="button" id="newReport">รายงานใหม่</button>
    </div>
    <p class="hint">รูปแบบใช้กับทั้งเล่ม · สารบัญเชื่อมไปยังเนื้อหา · เลขหน้ากรอกหลังตรวจ PDF เพราะ browser แบ่งหน้าตามเครื่องและแบบอักษร</p>
    <div class="status" id="status" role="status" aria-live="polite" tabindex="-1">ยังไม่ได้บันทึก</div>
@@ -46,23 +47,13 @@ dialog{width:min(800px,94vw);max-height:88vh;background:#0b213d;color:white;bord
 </div>
 <dialog id="previewDialog"><div class="toolbar"><h2>ตัวอย่างรายงาน</h2><button class="button" id="closePreview">ปิด</button></div><div id="previewBody" class="preview-wrap"></div></dialog>
 <dialog id="aiDialog"><h2>ตรวจร่างจาก AI ก่อนนำไปใช้</h2><p class="hint">ตรวจข้อเท็จจริง ตัวเลข หลักเกณฑ์และแหล่งอ้างอิงก่อนยอมรับ สามารถแก้ไขต่อได้</p><pre id="aiResult"></pre><div class="toolbar"><button class="button primary" id="acceptAI">นำร่างไปใช้</button><button class="button" id="rejectAI">ยกเลิก</button></div></dialog>
+<input id="importPicker" type="file" accept=".json,application/json" hidden>
 <input id="imagePicker" type="file" accept="image/png,image/jpeg,image/webp" hidden>
 <div id="printArea" class="print-only"></div>
 <footer>ตรวจสอบเพื่ออนาคตประเทศชาติและประชาชน · NON AUDIT</footer>
 <script>
 "use strict";
-/* ตั้งค่า API ของระบบบัญชีเดียวกับ login.html ทุก URL ใช้ HTTPS origin เดียวกัน
- SESSION: GET -> {authenticated:true,accountStatus:"active",user:{id,displayName,permissions:["reports:create"]},csrfToken}
- REPORTS: POST สร้าง / PUT REPORTS/{id} แก้ไข / GET REPORTS/{id} เปิดรายงาน
- ส่ง {document,version:null|integer}; คืน {success:true,report:{id,version,document}}
- HTTP 409 เมื่อ version ขัดแย้ง; server ตรวจเจ้าของ/สิทธิ์และบังคับ draft/internal
- AI: POST {sectionId,fields,document,instruction}; คืน {success:true,fields:{key:"ข้อความ"},coverTheme?:"gold"|"blue"|"minimal"}
- AI ใช้ข้อมูลที่ส่งเท่านั้น ไม่แต่งข้อเท็จจริงหรืออ้างอิง และเก็บ API key ที่ server
- ทุก API ต้องตรวจ session, permission, CSRF, Origin และป้องกันคำขอถี่
- ใช้ HttpOnly session cookie; CORS ระบุ origin จริงและ Allow-Credentials:true
- POST สร้างต้องรองรับ Idempotency-Key; ภาพฝังใน document จึงต้องตั้งขนาดรับข้อมูลให้เหมาะสม
-*/
-const CONFIG={SESSION:"",REPORTS:"",AI:""};
+
 const SECTIONS=[
  ["cover","หน้าปก"],["toc","สารบัญหลัก"],["tables","สารบัญตาราง"],["figures","สารบัญภาพ"],
  ["preface","คำนำ"],["executive","บทสรุปสำหรับผู้บริหาร"],["chapter1","บทที่ 1 บทนำ"],
@@ -91,21 +82,14 @@ function issueSchema(){return [
  ...LEVELS.flatMap((name,i)=>[["r"+i+"Agency","6."+(i+1)+" ระดับ"+name+": ชื่อหน่วยงานที่จะดำเนินการ"],["r"+i+"Now","ข้อเสนอแนะเพื่อดำเนินการในปัจจุบัน"],["r"+i+"Future","ข้อเสนอแนะเพื่อป้องกันความเสียหายในอนาคต"],["r"+i+"Other","ข้อเสนอแนะอื่นๆ"]])
 ];}
 function fresh(){const parts={};Object.entries(SCHEMA).forEach(([id,schema])=>parts[id]=blankFields(schema));parts.cover.footer.text="สำนักงานการตรวจเงินแผ่นดิน";return {schemaVersion:2,settings:{paper:"A4",orientation:"portrait",font:"Tahoma",fontSize:16,lineHeight:1.6,coverTheme:"gold"},parts,issues:[],tableItems:[],figureItems:[],pages:{}};}
-let doc=fresh(),active="cover",session=null,urls={},reportId=null,version=null,busy=false,dirty=false,saveKey=uid(),imageTarget=null,aiProposal=null,ownerId=null;
+let doc=fresh(),active="cover",reportId=null,version=null,busy=false,dirty=false,saveKey=uid(),imageTarget=null,aiProposal=null;
 function status(text,type=""){const e=$("status");e.textContent=text;e.className="status "+type;}
 function changed(){dirty=true;saveKey=uid();status("มีการแก้ไขที่ยังไม่ได้บันทึก");}
-function lock(text){session=null;$("workspace").hidden=true;$("gate").hidden=false;$("gateText").textContent=text;$("previewDialog").close();$("aiDialog").close();$("printArea").replaceChildren();}
-async function request(url,options={}){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),25000);try{return await fetch(url,{...options,credentials:"include",cache:"no-store",referrerPolicy:"no-referrer",signal:controller.signal});}finally{clearTimeout(timer);}}
-async function authorize(){
- const r=await request(urls.SESSION,{headers:{Accept:"application/json"}});
- if(r.status===401){lock("กรุณาเข้าสู่ระบบ");location.replace("login.html");return false;}
- if(r.status===403){lock("ไม่มีสิทธิ์เข้าใช้งาน กรุณาติดต่อผู้ดูแล");return false;}
- if(!r.ok)throw Error("ตรวจ session ไม่สำเร็จ");const s=await r.json();
- if(s.authenticated===false){lock("กรุณาเข้าสู่ระบบ");location.replace("login.html");return false;}
- if(s.authenticated!==true||s.accountStatus!=="active"||!s.user||typeof s.user.id!=="string"||!s.user.id||!Array.isArray(s.user.permissions)||!s.user.permissions.includes("reports:create")||typeof s.csrfToken!=="string"||!s.csrfToken){lock("บัญชียังไม่ได้รับสิทธิ์จัดทำรายงาน");return false;}
- if(ownerId&&ownerId!==s.user.id){lock("บัญชีผู้ใช้งานเปลี่ยน กรุณาปิดหน้านี้และเปิดใหม่");return false;}ownerId=s.user.id;
- session=s;$("user").textContent="ผู้ใช้งาน: "+(s.user.displayName||"ผู้ตรวจสอบ");$("gate").hidden=true;$("workspace").hidden=false;return true;
-}
+const STORAGE_NAME="non-audit-public-reports";
+function database(){return new Promise((resolve,reject)=>{const r=indexedDB.open(STORAGE_NAME,1);r.onupgradeneeded=()=>r.result.createObjectStore("reports",{keyPath:"id"});r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}
+async function stored(mode,action){const db=await database();try{return await new Promise((resolve,reject)=>{const tx=db.transaction("reports",mode),store=tx.objectStore("reports");let value;const req=action(store);if(req)req.onsuccess=()=>{value=req.result;};tx.oncomplete=()=>resolve(value);tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error("บันทึกถูกยกเลิก"));});}finally{db.close();}}
+function reportURL(){const u=new URL(location.href);u.searchParams.set("report",reportId);history.replaceState(null,"",u);}
+
 function button(text,fn,cls=""){const b=make("button",text,"button "+cls);b.type="button";b.addEventListener("click",fn);return b;}
 function input(value,fn,multiline=false){const e=make(multiline?"textarea":"input");e.value=value;e.addEventListener("input",()=>{fn(e.value);changed();});return e;}
 function safeImage(src){return typeof src==="string"&&/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(src);}
@@ -153,7 +137,7 @@ function renderEditor(){
   e.append(button("＋เพิ่มประเด็นการศึกษาวิเคราะห์",()=>{doc.issues.push({id:uid(),fields:blankFields(issueSchema())});changed();renderEditor();},"primary"));
   doc.issues.forEach((issue,i)=>{const wrap=make("details",undefined,"issue");wrap.open=doc.issues.length===1;const heading=make("summary","2."+(i+1)+" "+(issue.fields.title.text||"ประเด็นใหม่"));wrap.append(heading,button("ลบประเด็น",()=>{if(confirm("ลบประเด็นพร้อมข้อมูลภายในทั้งหมด?")){doc.issues.splice(i,1);changed();renderEditor();}}),button("AI ร่างประเด็นนี้",()=>askAI("chapter2",issue.fields),"ai"));issueSchema().forEach(([key,label])=>fieldEditor(wrap,key,label,issue.fields,"chapter2"));e.append(wrap);});
  }else{
-  if(active==="cover"){e.append(make("p","โลโก้ใช้ assets/logo.jpeg สามารถแทรกรูปเพิ่มเติมได้ และเลือกธีมหน้าปกจากแถบจัดรูปแบบ","hint"));}
+  if(active==="cover"){e.append(make("p","โลโก้ใช้ logoSAO-TH-02.png สามารถแทรกรูปเพิ่มเติมได้ และเลือกธีมหน้าปกจากแถบจัดรูปแบบ","hint"));}
   if(active==="bibliography"){e.append(make("h3","แหล่งอ้างอิงที่เชื่อมจากเนื้อหา"));bibliography().forEach((text,i)=>e.append(make("p",(i+1)+". "+text)));}
   SCHEMA[active].forEach(([key,label])=>fieldEditor(e,key,label,doc.parts[active],active));
  }
@@ -177,7 +161,7 @@ function buildPreview(ids,parent){
  const dimensions={A4:[210,297],A3:[297,420],Letter:[216,279],Legal:[216,356]},size=dimensions[s.paper];
  ids.forEach(id=>{const page=make("article",undefined,"sheet");page.id="section-"+id;page.style.fontFamily='"'+s.font+'", Tahoma, sans-serif';page.style.fontSize=s.fontSize+"pt";page.style.lineHeight=s.lineHeight;page.style.width=(s.orientation==="landscape"?size[1]:size[0])+"mm";
   if(id==="cover"){
-   const cover=make("div",undefined,"cover cover-"+s.coverTheme),logo=make("img");logo.src="assets/logo.jpeg";logo.alt="ตราสำนักงานการตรวจเงินแผ่นดิน";logo.addEventListener("error",()=>{logo.hidden=true;cover.prepend(make("p","สำนักงานการตรวจเงินแผ่นดิน"));});cover.append(logo);
+   const cover=make("div",undefined,"cover cover-"+s.coverTheme),logo=make("img");logo.src="logoSAO-TH-02.png";logo.alt="ตราสำนักงานการตรวจเงินแผ่นดิน";logo.addEventListener("error",()=>{logo.hidden=true;cover.prepend(make("p","สำนักงานการตรวจเงินแผ่นดิน"));});cover.append(logo);
    cover.style.minHeight=((s.orientation==="landscape"?size[0]:size[1])-50)+"mm";
    ["title","agency","year"].forEach(key=>{const block=make("div");if(key==="title"){block.style.fontSize="1.6em";block.style.fontWeight="bold";}fieldPreview(block,doc.parts.cover[key]);cover.append(block);});const tail=make("div",undefined,"cover-footer");["footer","date"].forEach(key=>fieldPreview(tail,doc.parts.cover[key]));cover.append(tail);page.append(cover);
   }else{
@@ -194,10 +178,10 @@ function buildPreview(ids,parent){
   }parent.append(page);
  });
 }
-async function view(all=false,print=false){try{if(!await authorize())return;const ids=all?SECTIONS.map(([id])=>id):[active];
- if(print){$("printStyle").textContent="@page{size:"+doc.settings.paper+" "+doc.settings.orientation+";margin:20mm}";buildPreview(ids,$("printArea"));const images=[...$("printArea").querySelectorAll("img")];await Promise.all(images.map(img=>img.decode().catch(()=>{})));if(!session)return;window.print();}
+async function view(all=false,print=false){try{const ids=all?SECTIONS.map(([id])=>id):[active];
+ if(print){$("printStyle").textContent="@page{size:"+doc.settings.paper+" "+doc.settings.orientation+";margin:20mm}";buildPreview(ids,$("printArea"));const images=[...$("printArea").querySelectorAll("img")];await Promise.all(images.map(img=>img.decode().catch(()=>{})));window.print();}
  else{buildPreview(ids,$("previewBody"));$("previewDialog").showModal();}
- }catch{lock("ตรวจ session ไม่สำเร็จ กรุณาเปิดหน้าใหม่เมื่อเชื่อมต่อได้");}}
+ }catch{status("แสดงตัวอย่างไม่สำเร็จ กรุณาลองใหม่","error");}}
 function validateDocument(value){
  if(!value||value.schemaVersion!==2||!value.parts||!Array.isArray(value.issues)||!Array.isArray(value.tableItems)||!Array.isArray(value.figureItems)||!value.pages||!value.settings)throw Error("รูปแบบรายงานไม่ตรงรุ่น");
  const s=value.settings;if(!["A4","A3","Letter","Legal"].includes(s.paper)||!["portrait","landscape"].includes(s.orientation)||!["Tahoma","Arial","TH Sarabun New","Sarabun","Times New Roman"].includes(s.font)||![12,14,16,18,20,24].includes(s.fontSize)||![1.2,1.5,1.6,2].includes(s.lineHeight)||!["gold","blue","minimal"].includes(s.coverTheme))throw Error("รูปแบบกระดาษไม่ถูกต้อง");
@@ -205,29 +189,25 @@ function validateDocument(value){
  Object.entries(SCHEMA).forEach(([id,schema])=>checkFields(value.parts[id],schema));value.issues.forEach(issue=>{if(typeof issue.id!=="string")throw Error("รหัสประเด็นไม่ถูกต้อง");checkFields(issue.fields,issueSchema());});[...value.tableItems,...value.figureItems].forEach(item=>{if(typeof item.id!=="string"||typeof item.title!=="string"||typeof item.page!=="string")throw Error("สารบัญไม่ถูกต้อง");});SECTIONS.slice(4).forEach(([id])=>{if(value.pages[id]!==undefined&&typeof value.pages[id]!=="string")throw Error("เลขหน้าไม่ถูกต้อง");});return value;
 }
 async function save(){if(busy)return;busy=true;$("save").disabled=true;try{
- if(!await authorize())return;if(!doc.parts.cover.title.text.trim()){status("กรุณากรอกชื่อเรื่องในหน้าปกก่อนบันทึก","error");return;}
- validateDocument(doc);const snapshot=JSON.stringify(doc),headers={"Content-Type":"application/json","X-CSRF-Token":session.csrfToken,"Idempotency-Key":saveKey};const r=await request(reportId?urls.REPORTS+"/"+encodeURIComponent(reportId):urls.REPORTS,{method:reportId?"PUT":"POST",headers,body:JSON.stringify({document:JSON.parse(snapshot),version})});
- if(r.status===401){lock("session หมดอายุ");location.replace("login.html");return;}if(r.status===403){lock("ไม่มีสิทธิ์บันทึก");return;}if(r.status===409){status("มีการแก้ไขรายงานจากที่อื่น กรุณาดาวน์โหลดสำเนาแล้วเปิดฉบับล่าสุดก่อนรวมข้อมูล","error");return;}if(!r.ok)throw Error("บันทึกไม่สำเร็จ");const out=await r.json();if(out.success!==true||typeof out.report?.id!=="string"||!Number.isInteger(out.report.version))throw Error("ผลบันทึกไม่ถูกต้อง");reportId=out.report.id;version=out.report.version;dirty=JSON.stringify(doc)!==snapshot;
- const u=new URL(location.href);u.searchParams.set("report",reportId);history.replaceState(null,"",u);status("บันทึกทั้งเล่มแล้ว · รหัส "+reportId+" · รุ่น "+version+(dirty?" · ยังมีการแก้ไขใหม่ที่ไม่ได้บันทึก":""),"success");
- }catch(error){status("ยังยืนยันผลบันทึกไม่ได้: "+error.message+" สามารถลองซ้ำด้วยข้อมูลเดิมได้","error");}finally{busy=false;$("save").disabled=false;}}
-async function askAI(sectionId,fields=null,keys=null){
- if(busy)return;if(!urls.AI){status("ยังไม่ได้เชื่อมบริการ AI กรุณาตั้งค่า CONFIG.AI","error");return;}
- if(!fields){if(!SCHEMA[sectionId]){status("สารบัญสร้างจากเนื้อหา สำหรับบทที่ 2 ให้กด AI ที่ประเด็นหรือส่วนย่อย","error");return;}fields=doc.parts[sectionId];}keys=keys||Object.keys(fields);const selected=Object.fromEntries(keys.map(key=>[key,fields[key].text]));const instruction=prompt("ระบุคำสั่งเพิ่มเติมสำหรับ AI","ร่างและจัดโครงสร้างจากข้อมูลในรายงานนี้เท่านั้น ระบุข้อมูลที่ยังขาด ห้ามสร้างข้อเท็จจริง ตัวเลข หรือแหล่งอ้างอิงขึ้นเอง");if(instruction===null)return;
- busy=true;status("AI กำลังจัดทำร่าง...");try{
- if(!await authorize())return;const r=await request(urls.AI,{method:"POST",headers:{"Content-Type":"application/json","X-CSRF-Token":session.csrfToken},body:JSON.stringify({sectionId,fields:selected,document:doc,instruction})});if(r.status===401||r.status===403){lock("session หรือสิทธิ์ AI ไม่พร้อม กรุณาเข้าสู่ระบบใหม่");return;}if(!r.ok)throw Error("บริการ AI ไม่พร้อม");const out=await r.json();if(out.success!==true||!out.fields||typeof out.fields!=="object")throw Error("ร่างไม่ถูกต้อง");const proposed={};keys.forEach(key=>{if(typeof out.fields[key]==="string")proposed[key]=out.fields[key];});if(!Object.keys(proposed).length)throw Error("ไม่มีร่างข้อความ");aiProposal={fields,values:proposed,sectionId,theme:["gold","blue","minimal"].includes(out.coverTheme)?out.coverTheme:null};$("aiResult").textContent=Object.entries(proposed).map(([key,text])=>(SCHEMA[sectionId]||issueSchema()).find(([k])=>k===key)?.[1]+"\n"+text).join("\n\n");$("aiDialog").showModal();status("ร่าง AI พร้อมตรวจ ยังไม่แทนที่เนื้อหาเดิม");
- }catch(error){status(error.message,"error");}finally{busy=false;}}
-$("acceptAI").onclick=async()=>{try{if(!await authorize())return;if(aiProposal){Object.entries(aiProposal.values).forEach(([key,text])=>aiProposal.fields[key].text=text);if(aiProposal.sectionId==="cover"&&aiProposal.theme)doc.settings.coverTheme=aiProposal.theme;changed();renderEditor();formatBar();}aiProposal=null;$("aiDialog").close();}catch{lock("ไม่สามารถตรวจ session ได้");}};
-$("rejectAI").onclick=()=>{aiProposal=null;$("aiDialog").close();};$("aiDialog").addEventListener("close",()=>aiProposal=null);
-$("imagePicker").onchange=async event=>{const file=event.target.files[0],target=imageTarget;if(!file||!target)return;if(!["image/png","image/jpeg","image/webp"].includes(file.type)||file.size>10*1024*1024){status("ใช้ PNG/JPEG/WebP ขนาดไม่เกิน 10 MB ต่อภาพ","error");return;}try{if(!await authorize())return;const src=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);});if(!session)return;target.extras.push({id:uid(),type:"image",src,caption:file.name,page:""});changed();renderEditor();}catch{status("เพิ่มภาพไม่สำเร็จ","error");}};
+ if(!doc.parts.cover.title.text.trim()){status("กรุณากรอกชื่อเรื่องในหน้าปกก่อนบันทึก","error");return;}
+ validateDocument(doc);const snapshot=JSON.stringify(doc),id=reportId||uid(),nextVersion=(version||0)+1;
+ await stored("readwrite",store=>{store.put({id,version:nextVersion,document:JSON.parse(snapshot),updatedAt:new Date().toISOString()});return store.put({id:"__latest__",reportId:id});});
+ reportId=id;version=nextVersion;dirty=JSON.stringify(doc)!==snapshot;reportURL();status("บันทึกทั้งเล่มในเบราว์เซอร์เครื่องนี้แล้ว · รุ่น "+version+(dirty?" · มีการแก้ไขใหม่ที่ยังไม่ได้บันทึก":"")+" · ดาวน์โหลด JSON เพื่อสำรองข้อมูล","success");
+ }catch(error){status("บันทึกในเครื่องไม่สำเร็จ: "+error.message+" กรุณาดาวน์โหลดสำเนา JSON","error");}finally{busy=false;$("save").disabled=false;}}
+async function askAI(){status("ยังไม่ได้เชื่อมบริการ AI สามารถเขียนและแก้ไขรายงานด้วยตนเองได้","error");}
+$("imagePicker").onchange=async event=>{const file=event.target.files[0],target=imageTarget;if(!file||!target)return;if(!["image/png","image/jpeg","image/webp"].includes(file.type)||file.size>10*1024*1024){status("ใช้ PNG/JPEG/WebP ขนาดไม่เกิน 10 MB ต่อภาพ","error");return;}try{const src=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);});target.extras.push({id:uid(),type:"image",src,caption:file.name,page:""});changed();renderEditor();}catch{status("เพิ่มภาพไม่สำเร็จ","error");}};
 $("save").onclick=save;$("viewSection").onclick=()=>view();$("viewAll").onclick=()=>view(true);$("printSection").onclick=()=>view(false,true);$("printAll").onclick=()=>view(true,true);$("aiSection").onclick=()=>askAI(active);$("closePreview").onclick=()=>$("previewDialog").close();
-$("backup").onclick=async()=>{try{if(!await authorize())return;const blob=new Blob([JSON.stringify({reportId,version,document:doc},null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=make("a");a.href=url;a.download="non-audit-report.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);status("ดาวน์โหลดสำเนาแล้ว สำเนานี้ไม่ใช่การบันทึกในฐานข้อมูลกลาง");}catch{lock("ตรวจ session ไม่สำเร็จ");}};
+$("backup").onclick=async()=>{try{const blob=new Blob([JSON.stringify({reportId,version,document:doc},null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=make("a");a.href=url;a.download="non-audit-report.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);status("ดาวน์โหลดสำเนาแล้ว สำเนานี้ไม่ใช่การบันทึกในฐานข้อมูลกลาง");}catch{status("ดาวน์โหลดไม่สำเร็จ กรุณาลองใหม่","error");}};
 window.addEventListener("beforeunload",e=>{if(dirty){e.preventDefault();e.returnValue="";}});window.addEventListener("afterprint",()=>$("printArea").replaceChildren());
-document.addEventListener("visibilitychange",async()=>{if(document.visibilityState!=="visible"||!urls.SESSION||busy)return;$("workspace").hidden=true;try{await authorize();}catch{lock("ตรวจ session ไม่สำเร็จ กรุณาเปิดหน้าใหม่");}});
+$("import").onclick=()=>$("importPicker").click();
+$("importPicker").onchange=async event=>{const file=event.target.files[0];if(!file)return;try{if(file.size>80*1024*1024)throw Error("ไฟล์ใหญ่เกิน 80 MB");const raw=JSON.parse(await file.text()),next=validateDocument(raw.document||raw);if(dirty&&!confirm("มีข้อมูลที่ยังไม่ได้บันทึก ต้องการเปิดไฟล์แทนที่หรือไม่?"))return;doc=next;reportId=null;version=null;dirty=true;const u=new URL(location.href);u.searchParams.delete("report");history.replaceState(null,"",u);formatBar();renderEditor();status("เปิดไฟล์แล้ว กรุณากดบันทึกในเครื่องเพื่อเก็บเป็นรายงานฉบับใหม่");}catch(error){status("เปิดไฟล์ไม่สำเร็จ: "+error.message,"error");}finally{event.target.value="";}};
+$("newReport").onclick=()=>{if(dirty&&!confirm("มีข้อมูลที่ยังไม่ได้บันทึก ต้องการสร้างรายงานใหม่หรือไม่?"))return;doc=fresh();reportId=null;version=null;dirty=false;active="cover";const u=new URL(location.href);u.searchParams.delete("report");u.searchParams.set("new","1");history.replaceState(null,"",u);formatBar();renderEditor();status("รายงานใหม่ พร้อมจัดทำได้ทันที");};
 async function init(){
- try{for(const [key,value] of Object.entries(CONFIG)){if(!value){if(key!=="AI"){lock("ยังไม่ได้ตั้งค่า API ตรวจ session และบันทึกรายงาน แบบฟอร์มจึงยังไม่เปิดใช้งาน");return;}continue;}const u=new URL(value);if(u.protocol!=="https:"||u.username||u.password||u.search||u.hash)throw Error("URL API ไม่ถูกต้อง");urls[key]=u.href.replace(/\/$/,"");}if(new URL(urls.SESSION).origin!==new URL(urls.REPORTS).origin||(urls.AI&&new URL(urls.AI).origin!==new URL(urls.SESSION).origin))throw Error("API ต้องใช้ origin เดียวกัน");
- if(!await authorize())return;const id=new URL(location.href).searchParams.get("report");if(id){const r=await request(urls.REPORTS+"/"+encodeURIComponent(id));if(r.status===401||r.status===403){lock("ไม่มีสิทธิ์เปิดรายงาน");return;}if(!r.ok)throw Error("เปิดรายงานไม่สำเร็จ");const out=await r.json();if(out.success!==true||typeof out.report?.id!=="string"||!Number.isInteger(out.report.version))throw Error("ข้อมูลรายงานไม่ถูกต้อง");doc=validateDocument(out.report.document);reportId=out.report.id;version=out.report.version;status("เปิดรายงาน "+reportId+" · รุ่น "+version);}
- SECTIONS.forEach(([id,title],i)=>{const b=button(String(i+1).padStart(2,"0")+" "+title,()=>{active=id;renderEditor();});b.dataset.id=id;$("tabs").append(b);});formatBar();renderEditor();setInterval(async()=>{if(busy||document.visibilityState!=="visible")return;try{await authorize();}catch{lock("ตรวจ session ไม่สำเร็จ กรุณาเปิดหน้าใหม่");}},60000);
- }catch(error){lock(error.message);}
+ $("user").textContent="เปิดให้ทุกคนจัดทำรายงาน";
+ try{const u=new URL(location.href);let id=u.searchParams.get("report");if(!id&&!u.searchParams.has("new")){const latest=await stored("readonly",store=>store.get("__latest__"));id=latest?.reportId;}
+ if(id){const saved=await stored("readonly",store=>store.get(id));if(saved?.document){doc=validateDocument(saved.document);reportId=saved.id;version=saved.version;reportURL();status("เปิดร่างที่บันทึกในเบราว์เซอร์เครื่องนี้ · รุ่น "+version);}else status("ไม่พบร่างในเครื่องนี้ สามารถเริ่มเขียนใหม่หรือเปิดไฟล์ JSON ได้");}
+ }catch{status("พื้นที่บันทึกในเบราว์เซอร์ยังไม่พร้อม คุณยังเขียน พิมพ์ และดาวน์โหลด JSON ได้","error");}
+ SECTIONS.forEach(([id,title],i)=>{const b=button(String(i+1).padStart(2,"0")+" "+title,()=>{active=id;renderEditor();});b.dataset.id=id;$("tabs").append(b);});formatBar();renderEditor();
 }
 init();
 </script>
