@@ -599,9 +599,6 @@
     <symbol id="i-file" viewBox="0 0 24 24">
       <path d="M5 3h9l5 5v13H5zM14 3v6h5M8 13h8M8 17h6"/>
     </symbol>
-    <symbol id="i-login" viewBox="0 0 24 24">
-      <path d="M14 3h6v18h-6M3 12h12m-5-5 5 5-5 5"/>
-    </symbol>
     <symbol id="i-plus" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/>
     </symbol>
@@ -739,7 +736,7 @@
             <span>ประเทศชาติและประชาชน</span>
           </h1>
           <p class="hero-description">
-            สร้างรายงาน จัดเก็บ และติดตามผลในระบบเดียว
+            สร้างรายงาน จัดเก็บ และติดตามผลในระบบเดียว · ทุกคนเข้าใช้งานได้ทันที
           </p>
           <div class="hero-actions">
             <a class="button button-primary" href="create-report.html">
@@ -820,7 +817,7 @@
         <p>
           <a href="knowledge-base.html">ฐานข้อมูลเพื่อสร้างรายงาน</a> ·
           <a href="public-results.html">ผลงานสาธารณะ</a> ·
-          <a href="login.html">เข้าสู่ระบบ</a>
+          <a href="create-report.html">สร้างรายงาน</a>
         </p>
       </noscript>
     </main>
@@ -833,11 +830,9 @@
   <script>
     "use strict";
 
-    // ชื่อไฟล์ทั้ง 12 หน้า ต้องสร้างไฟล์ปลายทางให้ตรงกับรายการนี้
+    // เมนูงานเปิดเข้าหน้าปลายทางโดยตรง
     const pages = [
       ["หน้าแรก", "index.html", "home", "cyan"],
-      ["ลงทะเบียน", "register.html", "file", "green"],
-      ["เข้าสู่ระบบ", "login.html", "login", "blue"],
       ["สร้างรายงาน", "create-report.html", "plus", "purple"],
       ["ค้นหารายงาน", "search-reports.html", "search", "cyan"],
       ["จัดเก็บรายงาน", "archive-reports.html", "database", "gold"],
@@ -845,7 +840,6 @@
       ["คู่มือ / ถามตอบ", "help.html", "book", "pink"],
       ["AI ช่วยทำงาน", "ai-assistant.html", "ai", "purple"],
       ["เผยแพร่ผลงาน", "public-results.html", "megaphone", "cyan"],
-      ["ผู้ใช้งาน / Admin", "visitors-admin.html", "users", "blue"],
       ["ฐานข้อมูลสร้างรายงาน", "knowledge-base.html", "database", "gold"]
     ];
 
@@ -1039,7 +1033,7 @@
     /*
       จุดเชื่อมสถิติสำหรับระบบหลังบ้านในขั้นตอนถัดไป
 
-      ระบบหลังบ้านต้องตรวจสอบสิทธิ์ก่อนส่งข้อมูล
+      ใช้ข้อมูลสถิติรวมสำหรับแสดงบนหน้าเว็บ
       ข้อมูลที่ส่งเข้าฟังก์ชัน:
       {
         totalReports: 12,
